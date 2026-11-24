@@ -1,0 +1,7 @@
+# 本地工具与运行时产物，不纳入版本库
+.workbuddy/
+.tmp-test/
+.DS_Store
+Thumbs.db
+desktop.ini
+*.log
