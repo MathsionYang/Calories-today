@@ -6,32 +6,29 @@
 <title>热量日历 · 原型</title>
 <style>
 :root{
-  --bg:#0B0D10; --surface:#16191F; --surface2:#1E222A; --surface3:#262B35;
-  --line:rgba(255,255,255,.075); --text:#F2F4F8; --muted:#8A92A3; --muted2:#5E6678;
-  --accent:#FF7A45; --accent2:#FFB088; --ok:#2ED3B7; --over:#FF5F6D; --warn:#FFC24B;
-  --r:16px;
+  --bg:#08090A; --surface:#0E0F11; --surface2:#15171A; --surface3:#1D2024;
+  --line:rgba(255,255,255,.065); --line2:rgba(255,255,255,.11);
+  --text:#EDEEF0; --muted:#8B8D93; --muted2:#5C5F65;
+  --accent:#FF7A45; --accent2:#FFB088; --ok:#34D399; --over:#F87171; --warn:#FBBF24;
+  --r:14px;
 }
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
 html,body{margin:0;padding:0;}
 body{
-  background:radial-gradient(1100px 700px at 15% -10%, #171B23 0%, #0B0D10 55%, #08090C 100%);
+  background:var(--bg);
   color:var(--text);
   font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",system-ui,sans-serif;
   -webkit-font-smoothing:antialiased;
   min-height:100vh;
 }
-.stage{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:22px 16px;gap:26px;}
-.side{max-width:250px;color:var(--muted);font-size:12px;line-height:1.85;display:none;}
-.side h4{color:var(--text);font-size:13px;margin:0 0 8px;letter-spacing:.04em;}
-.side b{color:var(--accent2);font-weight:600;}
+.stage{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px;}
 .phone{
-  position:relative;width:390px;height:min(812px,calc(100vh - 44px));
-  background:var(--bg);border-radius:42px;overflow:hidden;
-  border:1px solid rgba(255,255,255,.1);
-  box-shadow:0 40px 90px -20px rgba(0,0,0,.85), 0 0 0 9px #101317, 0 0 0 10px rgba(255,255,255,.06);
+  position:relative;width:390px;height:min(812px,calc(100vh - 48px));
+  background:var(--bg);border-radius:38px;overflow:hidden;
+  border:1px solid var(--line2);
+  box-shadow:0 24px 70px -24px rgba(0,0,0,.9);
   display:flex;flex-direction:column;
 }
-@media(min-width:1180px){ .side{display:block;} }
 @media(max-width:460px){
   .stage{padding:0;}
   .phone{width:100%;height:100vh;border-radius:0;border:none;box-shadow:none;}
@@ -43,285 +40,268 @@ body{
 /* 应用主体 */
 .app{flex:1;overflow-y:auto;overflow-x:hidden;scrollbar-width:none;}
 .app::-webkit-scrollbar{display:none;}
-.page{padding:0 16px 100px;animation:fade .22s ease both;}
-@keyframes fade{from{opacity:0;transform:translateY(6px);}to{opacity:1;transform:none;}}
-/* 顶部 */
-.head{display:flex;align-items:flex-start;justify-content:space-between;padding:6px 2px 14px;}
-.head .d1{font-size:12px;color:var(--muted);letter-spacing:.06em;}
-.head .d2{font-size:22px;font-weight:700;margin-top:3px;letter-spacing:-.01em;}
-.mchip{display:flex;align-items:center;gap:7px;background:var(--surface2);border:1px solid var(--line);
-  border-radius:99px;padding:6px 12px 6px 7px;font-size:12.5px;font-weight:600;cursor:pointer;
-  transition:.15s;white-space:nowrap;}
-.mchip:active{transform:scale(.96);}
-.mav{width:22px;height:22px;border-radius:99px;display:grid;place-items:center;font-size:12px;
+/* 页面主滚动条隐掉，但弹层里的小列表要留可见的细滚动条：
+   完全去掉会让"下面还有内容"变成猜测，系统默认的粗白条又很跳。 */
+::-webkit-scrollbar{width:7px;height:7px;}
+::-webkit-scrollbar-track{background:transparent;}
+::-webkit-scrollbar-thumb{background:rgba(255,255,255,.14);border-radius:99px;
+  border:2px solid transparent;background-clip:content-box;}
+::-webkit-scrollbar-thumb:hover{background:rgba(255,255,255,.26);background-clip:content-box;}
+*{scrollbar-width:thin;scrollbar-color:rgba(255,255,255,.16) transparent;}
+.page{padding:0 20px 92px;animation:fade .18s ease both;}
+@keyframes fade{from{opacity:0;}to{opacity:1;}}
+/* 顶部：日期当标题（备忘录的做法），没有多余的"今日"字样 */
+.head{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:8px 0 26px;}
+.head .d1{font-size:11.5px;color:var(--muted2);letter-spacing:.04em;}
+.head .d2{font-size:20px;font-weight:650;letter-spacing:-.02em;}
+.mchip{display:flex;align-items:center;gap:7px;background:transparent;border:1px solid var(--line2);
+  border-radius:99px;padding:5px 11px 5px 6px;font-size:12px;font-weight:550;cursor:pointer;
+  transition:.15s;white-space:nowrap;color:var(--text);}
+.mchip:active{background:var(--surface2);}
+.mav{width:20px;height:20px;border-radius:99px;display:grid;place-items:center;font-size:11px;
   background:linear-gradient(140deg,#FF9A62,#FF5F6D);}
-/* 环形卡 */
-.ring-card{background:var(--surface);border:1px solid var(--line);border-radius:22px;padding:18px 18px 14px;
-  position:relative;overflow:hidden;}
-.ring-card::after{content:"";position:absolute;width:220px;height:220px;right:-90px;top:-110px;border-radius:99px;
-  background:radial-gradient(circle,rgba(255,122,69,.16),transparent 68%);pointer-events:none;}
-.ring-wrap{display:flex;align-items:center;gap:16px;position:relative;}
-.ring{position:relative;width:126px;height:126px;flex:0 0 126px;}
-.ring svg{transform:rotate(-90deg);display:block;}
-.ring .ctr{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;}
-.ring .big{font-size:29px;font-weight:800;letter-spacing:-.03em;line-height:1;}
-.ring .unit{font-size:10.5px;color:var(--muted);letter-spacing:.1em;margin-top:4px;}
-.ring .lab{font-size:10.5px;color:var(--muted);margin-bottom:3px;letter-spacing:.08em;}
-.rr{flex:1;min-width:0;}
-.rr .row{display:flex;justify-content:space-between;font-size:12.5px;padding:5px 0;}
-.rr .row span:first-child{color:var(--muted);}
-.rr .row span:last-child{font-weight:650;font-variant-numeric:tabular-nums;}
-.rr .bar{height:5px;border-radius:99px;background:var(--surface3);margin:9px 0 7px;overflow:hidden;}
-.rr .bar i{display:block;height:100%;border-radius:99px;background:linear-gradient(90deg,#FF9A62,#FF5F6D);transition:width .5s;}
-.rr .hint{font-size:11.5px;color:var(--muted);line-height:1.5;}
-/* 分区标题 */
-.sec{display:flex;align-items:center;justify-content:space-between;margin:22px 2px 10px;}
-.sec h3{font-size:13px;margin:0;letter-spacing:.05em;color:var(--muted);font-weight:600;}
-.sec .act{font-size:12px;color:var(--accent);font-weight:600;cursor:pointer;}
-/* 餐次卡 */
-.meal{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);margin-bottom:10px;overflow:hidden;}
-.meal-h{display:flex;align-items:center;gap:10px;padding:13px 14px;}
-.meal-h .ico{width:30px;height:30px;border-radius:10px;display:grid;place-items:center;font-size:15px;background:var(--surface3);}
-.meal-h .nm{font-size:14px;font-weight:650;flex:1;}
-.meal-h .kk{font-size:13px;color:var(--muted);font-variant-numeric:tabular-nums;font-weight:600;}
-.meal-h .kk b{color:var(--text);font-weight:700;}
-.items{border-top:1px solid var(--line);}
-.item{display:flex;align-items:center;gap:10px;padding:9px 14px;border-bottom:1px solid rgba(255,255,255,.045);}
-.item:last-child{border-bottom:none;}
-.item .ie{font-size:15px;width:22px;text-align:center;}
-.item .in{flex:1;min-width:0;}
-.item .in .n{font-size:13.5px;font-weight:550;}
-.item .in .p{font-size:10.5px;color:var(--muted2);margin-top:2px;letter-spacing:.03em;}
+/* 今日总量：一个数字 + 一根细线，取代整张环形卡 */
+.summary .big{font-size:46px;font-weight:700;letter-spacing:-.045em;line-height:1;
+  font-variant-numeric:tabular-nums;}
+.summary .lab{font-size:12px;color:var(--muted);margin-top:9px;letter-spacing:.01em;}
+.summary .meter{height:2px;background:rgba(255,255,255,.09);border-radius:99px;margin:22px 0 9px;overflow:hidden;}
+.summary .meter i{display:block;height:100%;background:var(--accent);border-radius:99px;transition:width .45s;}
+.summary .meta{display:flex;justify-content:space-between;font-size:11.5px;color:var(--muted2);}
+.summary .meta b{color:var(--muted);font-weight:550;font-variant-numeric:tabular-nums;}
+/* 分节标题（只有数据页用） */
+.sec{display:flex;align-items:center;justify-content:space-between;margin:30px 0 8px;}
+.sec h3{font-size:12px;margin:0;letter-spacing:.02em;color:var(--muted);font-weight:550;}
+.sec .act{font-size:12px;color:var(--muted);font-weight:550;cursor:pointer;display:flex;align-items:center;gap:5px;}
+/* 餐次：无卡片、无图标，只有标签 + 行 + 分隔线 */
+.meal{margin-top:26px;}
+.meal-h{display:flex;align-items:center;gap:10px;padding-bottom:9px;}
+.meal-h .nm{flex:1;font-size:12px;font-weight:600;color:var(--muted);letter-spacing:.03em;}
+.meal-h .kk{font-size:12px;color:var(--muted);font-variant-numeric:tabular-nums;}
+.meal-h .kk b{color:var(--text);font-weight:600;}
+.meal-h .add{width:22px;height:22px;border-radius:99px;border:1px solid var(--line2);
+  display:grid;place-items:center;color:var(--muted);cursor:pointer;font-size:12px;line-height:1;flex:0 0 22px;}
+.meal-h .add:active{background:var(--surface2);}
+.item{display:flex;align-items:center;gap:9px;padding:10px 0;border-bottom:1px solid var(--line);}
+.item .ie{font-size:13px;width:16px;text-align:center;opacity:.75;flex:0 0 16px;}
+.item .in{flex:1;min-width:0;display:flex;align-items:baseline;gap:9px;}
+.item .in .n{font-size:13.5px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.item .in .p{font-size:11px;color:var(--muted2);flex:0 0 auto;}
 .item .ik{font-size:12.5px;color:var(--muted);font-variant-numeric:tabular-nums;}
-.addbtn{display:flex;align-items:center;justify-content:center;gap:6px;padding:11px;font-size:13px;
-  color:var(--accent);font-weight:600;cursor:pointer;border-top:1px solid var(--line);}
-.addbtn:active{background:rgba(255,122,69,.07);}
-.empty{padding:16px 14px;font-size:12.5px;color:var(--muted2);border-top:1px solid var(--line);}
+/* 删除按钮常驻但不抢眼：极淡，按下才变红 */
+.item .del{font-size:12px;color:rgba(255,255,255,.16);cursor:pointer;padding:0 1px;line-height:1;}
+.item .del:active{color:var(--over);}
+/* 空餐：一个虚线槽位，点它就是拍照记录。不需要"还没记录"这种解释 */
+.addline{display:flex;align-items:center;justify-content:center;height:36px;border:1px dashed rgba(255,255,255,.08);
+  border-radius:10px;color:var(--muted2);font-size:13px;cursor:pointer;margin-top:2px;}
+.addline:active{border-color:var(--accent);color:var(--accent);}
 /* 底部 Tab */
-.tabbar{position:absolute;left:0;right:0;bottom:0;height:76px;padding-bottom:14px;
-  background:linear-gradient(to top,rgba(11,13,16,.98) 55%,rgba(11,13,16,.86));
-  backdrop-filter:blur(18px);border-top:1px solid var(--line);display:flex;align-items:center;z-index:8;}
-.tb{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;padding-top:8px;cursor:pointer;
-  color:var(--muted2);font-size:10.5px;font-weight:600;transition:.15s;letter-spacing:.02em;}
-.tb.on{color:var(--accent);}
-.tb svg{width:21px;height:21px;stroke:currentColor;fill:none;stroke-width:1.85;stroke-linecap:round;stroke-linejoin:round;}
+.tabbar{position:absolute;left:0;right:0;bottom:0;height:64px;padding-bottom:10px;
+  background:rgba(8,9,10,.94);
+  backdrop-filter:blur(20px);border-top:1px solid var(--line);display:flex;align-items:center;z-index:8;}
+.tb{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;padding-top:7px;cursor:pointer;
+  color:var(--muted2);font-size:10px;font-weight:550;transition:.15s;}
+.tb.on{color:var(--text);}
+.tb svg{width:19px;height:19px;stroke:currentColor;fill:none;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round;}
 /* 日历 */
-.calhead{display:flex;align-items:center;justify-content:space-between;margin:4px 2px 16px;}
-.calhead .m{font-size:19px;font-weight:750;letter-spacing:-.02em;}
-.calhead .m span{font-size:11px;color:var(--muted);font-weight:600;margin-left:6px;}
-.navb{width:30px;height:30px;border-radius:9px;background:var(--surface2);border:1px solid var(--line);
-  display:grid;place-items:center;cursor:pointer;color:var(--muted);font-size:13px;}
-.navb:active{background:var(--surface3);}
-.wk{display:grid;grid-template-columns:repeat(7,1fr);margin-bottom:6px;}
-.wk div{text-align:center;font-size:10.5px;color:var(--muted2);font-weight:600;letter-spacing:.06em;}
-.grid{display:grid;grid-template-columns:repeat(7,1fr);gap:5px;}
-.cell{aspect-ratio:1/1.18;border-radius:11px;background:var(--surface);border:1px solid transparent;
-  display:flex;flex-direction:column;align-items:center;justify-content:flex-start;padding:6px 2px 5px;
-  cursor:pointer;position:relative;transition:.14s;}
-.cell.blank{background:transparent;pointer-events:none;}
-.cell .dn{font-size:11.5px;font-weight:600;color:var(--muted);font-variant-numeric:tabular-nums;}
-.cell .k{font-size:9.5px;font-weight:700;margin-top:auto;font-variant-numeric:tabular-nums;letter-spacing:-.02em;}
-.cell .pip{position:absolute;bottom:4px;left:50%;transform:translateX(-50%);width:24px;height:2.5px;border-radius:9px;background:var(--surface3);}
+.calhead{display:flex;align-items:center;justify-content:space-between;padding:8px 0 22px;}
+.calhead .m{font-size:17px;font-weight:650;letter-spacing:-.02em;}
+.calhead .m span{font-size:11.5px;color:var(--muted2);font-weight:500;margin-left:7px;}
+.navb{width:28px;height:28px;display:grid;place-items:center;cursor:pointer;color:var(--muted);font-size:15px;}
+.navb:active{color:var(--text);}
+.wk{display:grid;grid-template-columns:repeat(7,1fr);margin-bottom:4px;}
+.wk div{text-align:center;font-size:10px;color:var(--muted2);font-weight:500;}
+.grid{display:grid;grid-template-columns:repeat(7,1fr);gap:3px;}
+.cell{aspect-ratio:1/1.1;border-radius:9px;background:transparent;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;
+  cursor:pointer;position:relative;transition:background .13s;}
+.cell.blank{pointer-events:none;}
+.cell .dn{font-size:11.5px;font-weight:500;color:var(--muted2);font-variant-numeric:tabular-nums;}
+.cell .k{font-size:9.5px;font-weight:600;font-variant-numeric:tabular-nums;letter-spacing:-.02em;height:11px;}
 .cell.has .dn{color:var(--text);}
-.cell.under{background:rgba(46,211,183,.09);border-color:rgba(46,211,183,.22);}
-.cell.under .k{color:var(--ok);}
-.cell.over{background:rgba(255,95,109,.1);border-color:rgba(255,95,109,.26);}
-.cell.over .k{color:var(--over);}
-.cell.near{background:rgba(255,194,75,.09);border-color:rgba(255,194,75,.22);}
-.cell.near .k{color:var(--warn);}
-.cell.today{border-color:var(--accent)!important;box-shadow:0 0 0 1.5px rgba(255,122,69,.35) inset;}
-.cell.today .dn{color:var(--accent);}
+/* 颜色只出现在底色上，kcal 数字保持中性 —— 两者同时染色会显得吵闹。
+   底色只有两档：有记录=中性，超标=红。日历和柱状图用同一套语言：只有异常才上色。 */
+.cell .k{color:var(--muted);}
+.cell.under,.cell.near{background:rgba(255,255,255,.05);}
+.cell.over{background:rgba(248,113,113,.13);}
 /* 按下反馈不要改变元素几何尺寸：格子密集时缩小会让"按下点"落到格子外，
    浏览器会把 click 派发给共同祖先（.grid），表现为点边缘没反应 */
-.cell:active{background:var(--surface3);border-color:var(--line);}
-.legend{display:flex;flex-wrap:wrap;gap:12px;margin:14px 2px 0;font-size:10.5px;color:var(--muted2);}
-.legend i{display:inline-block;width:7px;height:7px;border-radius:2px;margin-right:5px;vertical-align:middle;}
-/* 月结 */
-.mstat{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:16px;}
-.mstat .c{background:var(--surface);border:1px solid var(--line);border-radius:13px;padding:12px 10px;text-align:center;}
-.mstat .v{font-size:18px;font-weight:800;letter-spacing:-.02em;font-variant-numeric:tabular-nums;}
-.mstat .l{font-size:10px;color:var(--muted2);margin-top:4px;letter-spacing:.05em;}
-/* 柱状图（带 Y 轴刻度 + 目标参考线） */
-.chart{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:16px 14px 10px;margin-top:16px;}
-.chart .plotwrap{display:flex;}
-.chart .yaxis{position:relative;flex:0 0 34px;width:34px;height:104px;}
-.chart .yaxis .yt{position:absolute;right:7px;font-size:9px;line-height:1;color:var(--muted2);
+.cell.today{box-shadow:inset 0 0 0 1px rgba(255,122,69,.65);background:transparent;}
+.cell.today .dn{color:var(--accent);}
+.cell:active{background:var(--surface2);}
+/* 月统计：一行数字，不是三张卡 */
+.mstats{display:flex;gap:18px;font-size:11.5px;color:var(--muted2);padding:16px 2px 0;}
+.mstats b{color:var(--text);font-weight:600;font-variant-numeric:tabular-nums;}
+/* 柱状图（带 Y 轴刻度 + 目标参考线）：只有"超标"用红，其余走中性灰阶 */
+/* 顶部留 7px：刻度的竖直中心要落在网格线上，最高那条会向上探出半个字高，
+   没有这段留白它会顶到上面的「近 7 天」标题。 */
+.chart{padding:0;margin-top:16px;}
+.chart .plotwrap{display:flex;padding-top:7px;}
+.chart .yaxis{position:relative;flex:0 0 30px;width:30px;height:104px;}
+.chart .yaxis .yt{position:absolute;right:6px;font-size:9px;line-height:1;color:var(--muted2);
   font-variant-numeric:tabular-nums;letter-spacing:-.02em;transform:translateY(50%);}
-.chart .yaxis .yt.goal{color:var(--warn);font-weight:700;}
+.chart .yaxis .yt.goal{color:var(--warn);font-weight:600;}
 .chart .plot{position:relative;flex:1;height:104px;}
-.chart .plot .gl{position:absolute;left:0;right:0;height:1px;background:rgba(255,255,255,.1);}
-.chart .plot .gl.zero{background:rgba(255,255,255,.2);}
-.chart .plot .goalline{position:absolute;left:0;right:0;border-top:1px dashed var(--warn);opacity:.65;z-index:2;}
-.chart .cols{position:relative;display:flex;align-items:flex-end;gap:8px;height:100%;z-index:1;}
+.chart .plot .gl{position:absolute;left:0;right:0;height:1px;background:rgba(255,255,255,.07);}
+.chart .plot .gl.zero{background:rgba(255,255,255,.13);}
+.chart .plot .goalline{position:absolute;left:0;right:0;border-top:1px dashed rgba(251,191,36,.5);z-index:2;}
+.chart .cols{position:relative;display:flex;align-items:flex-end;gap:6px;height:100%;z-index:1;}
 .chart .col{flex:1;display:flex;flex-direction:column;align-items:center;height:100%;justify-content:flex-end;}
-.chart .col .b{width:100%;max-width:26px;border-radius:6px 6px 3px 3px;background:var(--surface3);
-  min-height:3px;transition:height .5s cubic-bezier(.2,.8,.3,1);position:relative;}
-/* 没记录的日子用贴底短横线表示。之前画成小方块，看着像"热量很低的柱子"，会误导。 */
-.chart .col .nodata{display:block;width:64%;max-width:18px;height:3px;border-radius:3px;
-  background:rgba(255,255,255,.14);}
-.chart .col .b.under{background:linear-gradient(180deg,#2ED3B7,#1F9E88);}
-.chart .col .b.over{background:linear-gradient(180deg,#FF7A45,#FF5F6D);}
-.chart .col .b.near{background:linear-gradient(180deg,#FFC24B,#E8A227);}
-.chart .xlabels{display:flex;gap:8px;margin-top:7px;}
+.chart .col .b{width:100%;max-width:22px;border-radius:3px 3px 0 0;background:var(--surface3);
+  min-height:3px;transition:height .5s cubic-bezier(.2,.8,.3,1);}
+/* 没记录的日子用贴底短横线表示。画成小方块会被读成"热量很低的柱子"。 */
+.chart .col .nodata{display:block;width:55%;max-width:14px;height:2px;border-radius:2px;
+  background:rgba(255,255,255,.12);}
+.chart .col .b.under{background:rgba(255,255,255,.12);}
+.chart .col .b.near{background:rgba(255,255,255,.22);}
+.chart .col .b.over{background:rgba(248,113,113,.72);}
+.chart .xlabels{display:flex;gap:6px;margin-top:7px;}
 .chart .xlabels span{flex:1;text-align:center;font-size:9.5px;color:var(--muted2);}
-/* 体重卡片 */
-.wcard{padding:15px 14px 12px;}
-.wtop{display:flex;align-items:baseline;justify-content:space-between;margin-bottom:10px;}
-.wtop .wnum{font-size:23px;font-weight:800;letter-spacing:-.03em;font-variant-numeric:tabular-nums;}
-.wtop .wnum i{font-size:11px;font-weight:600;color:var(--muted2);margin-left:3px;font-style:normal;}
-.wtop .wdlt{font-size:11px;font-weight:650;font-variant-numeric:tabular-nums;}
+/* 体重 */
+.wcard{padding:0;}
+.wtop{display:flex;align-items:baseline;gap:10px;margin-bottom:14px;}
+.wtop .wnum{font-size:22px;font-weight:650;letter-spacing:-.03em;font-variant-numeric:tabular-nums;}
+.wtop .wnum i{font-size:11px;font-weight:500;color:var(--muted2);margin-left:3px;font-style:normal;}
+.wtop .wdlt{font-size:11.5px;font-weight:550;font-variant-numeric:tabular-nums;}
 .wtop .wdlt.down{color:var(--ok);}
 .wtop .wdlt.up{color:var(--over);}
 .wtop .wdlt.flat{color:var(--muted2);}
-.wx{display:flex;justify-content:space-between;font-size:9.5px;color:var(--muted2);margin-top:6px;
-  padding-left:30px;padding-right:6px;}
-.wempty{font-size:12px;color:var(--muted2);text-align:center;padding:26px 8px;line-height:1.8;}
+.wempty{font-size:12px;color:var(--muted2);text-align:center;padding:22px 8px;}
 /* 体重历史列表（弹层内） */
-.wrow{display:flex;align-items:center;gap:9px;padding:9px 11px;background:var(--surface2);
-  border-radius:11px;margin-bottom:5px;}
+.wrow{display:flex;align-items:center;gap:9px;padding:9px 0;border-bottom:1px solid var(--line);}
 .wrow .d{font-size:11px;color:var(--muted2);width:44px;font-variant-numeric:tabular-nums;}
-.wrow .k{flex:1;font-size:13.5px;font-weight:650;font-variant-numeric:tabular-nums;}
-.wrow .x{font-size:15px;color:var(--muted2);padding:0 3px;cursor:pointer;}
+.wrow .k{flex:1;font-size:13.5px;font-weight:550;font-variant-numeric:tabular-nums;}
+.wrow .x{font-size:14px;color:var(--muted2);padding:0 3px;cursor:pointer;}
 .wrow .x:active{color:var(--over);}
+/* 曲线两端日期：说明这条线覆盖多长，不是标签 */
+.wx{display:flex;justify-content:space-between;font-size:9.5px;color:var(--muted2);
+  margin-top:8px;padding-left:30px;padding-right:4px;font-variant-numeric:tabular-nums;}
 /* 面板 sheet */
-.mask{position:absolute;inset:0;background:rgba(0,0,0,.44);backdrop-filter:blur(1.5px);z-index:20;
-  display:flex;align-items:flex-end;animation:fadein .18s ease both;}
+.mask{position:absolute;inset:0;background:rgba(0,0,0,.5);z-index:20;
+  display:flex;align-items:flex-end;animation:fadein .16s ease both;}
 @keyframes fadein{from{opacity:0}to{opacity:1}}
-.sheet{width:100%;background:var(--surface);border-radius:26px 26px 0 0;border-top:1px solid rgba(255,255,255,.1);
-  max-height:88%;display:flex;flex-direction:column;animation:up .26s cubic-bezier(.2,.85,.3,1) both;}
+.sheet{width:100%;background:var(--bg);border-radius:20px 20px 0 0;border-top:1px solid var(--line2);
+  max-height:88%;display:flex;flex-direction:column;animation:up .24s cubic-bezier(.2,.85,.3,1) both;}
 @keyframes up{from{transform:translateY(100%)}to{transform:none}}
-.sh-h{padding:8px 18px 12px;border-bottom:1px solid var(--line);flex:0 0 auto;position:relative;}
-.sh-h .grab{width:36px;height:4px;border-radius:9px;background:var(--surface3);margin:0 auto 12px;}
-.sh-h .t{font-size:15.5px;font-weight:700;display:flex;align-items:center;gap:8px;}
-.sh-h .s{font-size:11.5px;color:var(--muted);margin-top:5px;line-height:1.5;}
-.sh-h .x{position:absolute;right:14px;top:14px;width:28px;height:28px;border-radius:99px;background:var(--surface3);
-  display:grid;place-items:center;font-size:15px;color:var(--muted);cursor:pointer;}
-.sh-b{overflow-y:auto;padding:16px 18px;flex:1;scrollbar-width:none;}
+.sh-h{padding:10px 20px 14px;border-bottom:1px solid var(--line);flex:0 0 auto;position:relative;}
+.sh-h .grab{width:32px;height:3px;border-radius:9px;background:var(--surface3);margin:0 auto 14px;}
+.sh-h .t{font-size:16px;font-weight:650;letter-spacing:-.01em;}
+.sh-h .s{font-size:11.5px;color:var(--muted2);margin-top:5px;font-variant-numeric:tabular-nums;}
+.sh-h .x{position:absolute;right:16px;top:16px;width:26px;height:26px;border-radius:99px;
+  display:grid;place-items:center;font-size:14px;color:var(--muted);cursor:pointer;}
+.sh-h .x:active{background:var(--surface2);}
+/* 状态行（正在识别 / 未识别）没内容时不要留空隙 */
+.sh-h .s:empty{display:none;}
+/* 弹层里的餐次列表贴着标题，不需要今日页那样的大间隔 */
+.sh-b .meal:first-child{margin-top:0;}
+.sh-b{overflow-y:auto;padding:16px 20px;flex:1;scrollbar-width:none;}
 .sh-b::-webkit-scrollbar{display:none;}
-.sh-f{padding:12px 18px calc(16px + env(safe-area-inset-bottom));border-top:1px solid var(--line);
-  display:flex;gap:10px;flex:0 0 auto;background:var(--surface);}
-.btn{flex:1;padding:13px;border-radius:13px;border:none;font-size:14px;font-weight:700;cursor:pointer;
+/* 手动录入的候选列表：高度取 4 行整（53px×4），滚动时不会切出半行 */
+.picklist{display:grid;gap:0;max-height:212px;overflow:auto;margin-top:10px;}
+.sh-f{padding:12px 20px calc(14px + env(safe-area-inset-bottom));border-top:1px solid var(--line);
+  display:flex;gap:9px;flex:0 0 auto;background:var(--bg);}
+.btn{flex:1;padding:12px;border-radius:11px;border:none;font-size:13.5px;font-weight:600;cursor:pointer;
   font-family:inherit;transition:.15s;}
-.btn:active{transform:scale(.98);}
-.btn.pri{background:linear-gradient(135deg,#FF9A62,#FF5F6D);color:#fff;box-shadow:0 8px 22px -8px rgba(255,95,109,.55);}
+.btn:active{opacity:.85;}
+.btn.pri{background:var(--accent);color:#0A0B0C;}
 .btn.gho{background:var(--surface3);color:var(--text);}
 .btn:disabled{opacity:.45;}
 /* 拍照 */
-.cam{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
-.cam .opt{background:var(--surface2);border:1px dashed rgba(255,255,255,.16);border-radius:15px;
-  padding:26px 10px;text-align:center;cursor:pointer;transition:.15s;}
-.cam .opt:active{background:var(--surface3);border-color:var(--accent);}
-.cam .opt .i{font-size:24px;}
-.cam .opt .t{font-size:12.5px;font-weight:650;margin-top:9px;}
-.tips{background:var(--surface2);border-radius:12px;padding:11px 13px;font-size:11.5px;
-  color:var(--muted);line-height:1.65;margin-top:14px;}
-.tips b{color:var(--accent2);}
-.preview{width:100%;border-radius:15px;display:block;max-height:190px;object-fit:cover;background:var(--surface3);}
-.scan{display:flex;align-items:center;gap:11px;margin-top:14px;font-size:12.5px;color:var(--muted);}
-.spin{width:17px;height:17px;border-radius:99px;border:2px solid var(--surface3);border-top-color:var(--accent);
-  animation:sp .7s linear infinite;flex:0 0 17px;}
+.cam{display:grid;grid-template-columns:1fr 1fr;gap:9px;}
+.cam .opt{background:var(--surface);border:1px solid var(--line);border-radius:12px;
+  padding:24px 10px;text-align:center;cursor:pointer;transition:.15s;}
+.cam .opt:active{border-color:var(--accent);}
+.cam .opt .i{font-size:21px;display:flex;justify-content:center;color:var(--muted);}
+.cam .opt svg{width:26px;height:26px;stroke:currentColor;fill:none;stroke-width:1.4;
+  stroke-linecap:round;stroke-linejoin:round;}
+.cam .opt .t{font-size:12px;font-weight:550;margin-top:8px;color:var(--muted);}
+.preview{width:100%;border-radius:12px;display:block;max-height:180px;object-fit:cover;background:var(--surface3);}
+.scan{display:flex;align-items:center;gap:10px;margin-top:14px;font-size:12px;color:var(--muted);}
+.spin{width:15px;height:15px;border-radius:99px;border:1.5px solid var(--surface3);border-top-color:var(--accent);
+  animation:sp .7s linear infinite;flex:0 0 15px;}
 @keyframes sp{to{transform:rotate(360deg)}}
-.pbar{height:3px;border-radius:9px;background:var(--surface3);overflow:hidden;margin-top:11px;}
-.pbar i{display:block;height:100%;background:linear-gradient(90deg,#FF9A62,#FF5F6D);width:0;transition:width .4s;}
+.pbar{height:2px;border-radius:9px;background:var(--surface3);overflow:hidden;margin-top:11px;}
+.pbar i{display:block;height:100%;background:var(--accent);width:0;transition:width .4s;}
 /* 识别结果行 */
-.ritem{background:var(--surface2);border-radius:13px;padding:11px 12px;margin-bottom:9px;}
-.ritem .top{display:flex;align-items:center;gap:9px;}
-.ritem .top .ie{font-size:16px;}
-.ritem .top .nm{flex:1;font-size:13.5px;font-weight:600;}
-.ritem .top .kk{font-size:13px;font-weight:750;color:var(--accent2);font-variant-numeric:tabular-nums;}
-.ritem .top .del{color:var(--muted2);font-size:16px;padding:0 2px;cursor:pointer;line-height:1;}
-.chips{display:flex;gap:6px;margin-top:9px;}
-.chip{flex:1;text-align:center;font-size:11px;font-weight:600;padding:5px 0;border-radius:8px;
-  background:var(--surface3);color:var(--muted);cursor:pointer;transition:.13s;}
-.chip.on{background:rgba(255,122,69,.18);color:var(--accent2);box-shadow:0 0 0 1px rgba(255,122,69,.4) inset;}
-.sum{display:flex;justify-content:space-between;align-items:center;padding:12px 2px 4px;
-  font-size:12.5px;color:var(--muted);border-top:1px dashed var(--line);margin-top:6px;}
-.sum b{font-size:17px;color:var(--text);font-weight:800;}
-/* 我的 */
-.card{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);overflow:hidden;margin-bottom:12px;}
-.card .row{display:flex;align-items:center;gap:11px;padding:13px 14px;border-bottom:1px solid rgba(255,255,255,.045);}
+.ritems{margin-top:18px;}
+.ritem{padding:12px 0;border-bottom:1px solid var(--line);}
+.ritems .ritem:last-child{border-bottom:none;padding-bottom:0;}
+.ritem .top{display:flex;align-items:center;gap:8px;}
+.ritem .top .ie{font-size:14px;opacity:.8;}
+.ritem .top .nm{flex:1;font-size:13.5px;font-weight:550;}
+.ritem .top .kk{font-size:12.5px;color:var(--muted);font-variant-numeric:tabular-nums;}
+.ritem .top .del{color:var(--muted2);font-size:13px;padding:0 2px;cursor:pointer;line-height:1;}
+.chips{display:flex;gap:5px;margin-top:9px;}
+.chip{flex:1;text-align:center;font-size:11px;font-weight:550;padding:5px 0;border-radius:7px;
+  background:var(--surface2);color:var(--muted);cursor:pointer;transition:.13s;}
+.chip.on{background:rgba(255,122,69,.14);color:var(--accent2);}
+/* 我的：保留分组列表（设置页本来就该是列表），但压扁行高、去掉"说明副标题" */
+.card{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);overflow:hidden;margin-bottom:10px;}
+.card .row{display:flex;align-items:center;gap:11px;padding:13px 15px;border-bottom:1px solid var(--line);}
 .card .row:last-child{border-bottom:none;}
 .card .row .k{flex:1;font-size:13.5px;font-weight:550;}
 .card .row .v{font-size:12.5px;color:var(--muted);font-variant-numeric:tabular-nums;}
 .card .row .arr{color:var(--muted2);font-size:13px;}
-.cardt{font-size:11px;color:var(--muted2);padding:0 4px 8px;letter-spacing:.05em;margin-top:18px;font-weight:600;}
-.mrow{display:flex;align-items:center;gap:11px;padding:13px 14px;border-bottom:1px solid rgba(255,255,255,.045);cursor:pointer;}
+.cardt{font-size:11px;color:var(--muted2);padding:0 2px 8px;letter-spacing:.03em;margin-top:24px;font-weight:550;}
+.mrow{display:flex;align-items:center;gap:11px;padding:12px 15px;border-bottom:1px solid var(--line);cursor:pointer;}
 .mrow:last-child{border-bottom:none;}
-.mrow .av{width:34px;height:34px;border-radius:99px;display:grid;place-items:center;font-size:15px;flex:0 0 34px;}
-.mrow .info{flex:1;min-width:0;}
-.mrow .info .n{font-size:13.5px;font-weight:650;}
-.mrow .info .s{font-size:10.5px;color:var(--muted2);margin-top:3px;}
-.mrow .chk{width:19px;height:19px;border-radius:99px;border:1.5px solid var(--surface3);display:grid;place-items:center;font-size:11px;color:#0B0D10;}
-.mrow.on .chk{background:var(--accent);border-color:var(--accent);}
+.mrow .av{width:28px;height:28px;border-radius:99px;display:grid;place-items:center;font-size:13px;flex:0 0 28px;}
+.mrow .info{flex:1;min-width:0;display:flex;align-items:baseline;justify-content:space-between;gap:8px;}
+.mrow .info .n{font-size:13.5px;font-weight:550;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.mrow .info .s{font-size:11px;color:var(--muted2);font-variant-numeric:tabular-nums;white-space:nowrap;}
+/* 选中态只留一个对勾：实心圆点会和头像的彩色圆形打架 */
+.mrow .chk{width:16px;height:16px;display:grid;place-items:center;font-size:12px;
+  color:var(--accent);flex:0 0 16px;}
 input,select{font-family:inherit;}
-.fld{width:100%;background:var(--surface2);border:1px solid var(--line);border-radius:10px;color:var(--text);
-  padding:10px 12px;font-size:12.5px;outline:none;}
-.fld:focus{border-color:rgba(255,122,69,.5);}
+.fld{width:100%;background:var(--surface);border:1px solid var(--line);border-radius:9px;color:var(--text);
+  padding:9px 11px;font-size:12.5px;outline:none;}
+.fld:focus{border-color:var(--line2);}
 .fld::placeholder{color:var(--muted2);}
+/* 日期输入的原生图标默认是纯白，在深色里比正文还亮，压到 35% 刚好 */
+.fld::-webkit-calendar-picker-indicator{filter:invert(1);opacity:.35;cursor:pointer;}
 input[type="date"].fld{color-scheme:dark;padding-right:6px;}
-.pchip{font-size:11px;font-weight:600;padding:6px 10px;border-radius:8px;background:var(--surface3);
+.pchip{font-size:11px;font-weight:550;padding:5px 9px;border-radius:7px;background:var(--surface2);
   color:var(--muted);cursor:pointer;white-space:nowrap;transition:.13s;border:1px solid transparent;}
-.pchip.on{background:rgba(255,122,69,.16);color:var(--accent2);border-color:rgba(255,122,69,.4);}
-.pchip:active{transform:scale(.96);}
-/* 语言分段控件：语言是二元互斥选择，用分段比列表行更直观、也更省高度 */
-.seg{display:flex;gap:5px;background:var(--surface2);padding:4px;border-radius:12px;}
-.seg .o{flex:1;text-align:center;padding:9px 0;border-radius:9px;font-size:12.5px;font-weight:650;
-  color:var(--muted);cursor:pointer;transition:.15s;letter-spacing:.02em;}
-.seg .o.on{background:var(--accent);color:#0B0D10;}
-.seg .o:active{transform:scale(.97);}
-/* 语言不是"设置项"，是全局开关 → 收进页头右上角的小药丸，不再占一张卡片 */
-.langpill{display:flex;gap:3px;background:var(--surface2);padding:3px;border-radius:99px;
-  border:1px solid var(--line);margin-top:4px;}
-.langpill .lp{font-size:10.5px;font-weight:750;padding:5px 9px;border-radius:99px;color:var(--muted2);
-  cursor:pointer;letter-spacing:.03em;transition:.15s;}
-.langpill .lp.on{background:var(--accent);color:#0B0D10;}
-/* 折叠区：长内容默认收起，页面才不用滚半天 */
+.pchip.on{background:rgba(255,122,69,.14);color:var(--accent2);border-color:rgba(255,122,69,.3);}
+/* 两档互斥选择用分段控件，比两行列表省一半高度 */
+.seg{display:flex;gap:3px;background:var(--surface2);padding:3px;border-radius:10px;}
+.seg .o{flex:1;text-align:center;padding:7px 0;border-radius:8px;font-size:12px;font-weight:550;
+  color:var(--muted);cursor:pointer;transition:.15s;}
+.seg .o.on{background:var(--surface3);color:var(--text);box-shadow:inset 0 0 0 1px var(--line2);}
+/* 语言不是"设置项"，是全局开关 → 页头右上角的小药丸 */
+.langpill{display:flex;gap:2px;background:var(--surface2);padding:2px;border-radius:99px;}
+.langpill .lp{font-size:10.5px;font-weight:600;padding:4px 8px;border-radius:99px;color:var(--muted2);
+  cursor:pointer;transition:.15s;}
+.langpill .lp.on{background:var(--surface3);color:var(--text);}
+/* 折叠区：配置类内容默认收起 */
 .acc{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);
-  overflow:hidden;margin-bottom:12px;}
-.acc .hd{display:flex;align-items:center;gap:9px;padding:13px 14px;cursor:pointer;}
-.acc .hd .k{flex:1;font-size:13px;font-weight:600;}
-.acc .hd .cv{color:var(--muted2);font-size:15px;line-height:1;transition:transform .18s;}
+  overflow:hidden;margin-bottom:10px;}
+.acc .hd{display:flex;align-items:center;gap:9px;padding:13px 15px;cursor:pointer;}
+.acc .hd .k{flex:1;font-size:13.5px;font-weight:550;}
+.acc .hd .cv{color:var(--muted2);font-size:14px;line-height:1;transition:transform .18s;}
 .acc.on .hd .cv{transform:rotate(90deg);}
-.acc .bd{padding:0 14px 14px;}
-.foldlink{display:inline-flex;align-items:center;gap:4px;font-size:11px;color:var(--accent2);
-  font-weight:600;margin-top:11px;cursor:pointer;}
-.hint{font-size:11px;color:var(--muted2);line-height:1.65;}
-/* 折叠区里的行不带 .card 父级，样式单独给 */
+.acc .bd{padding:0 15px 15px;}
 .acc .bd .row{display:flex;align-items:center;gap:11px;padding:11px 0;cursor:pointer;
-  border-bottom:1px solid rgba(255,255,255,.045);}
+  border-bottom:1px solid var(--line);}
 .acc .bd .row:last-child{border-bottom:none;padding-bottom:2px;}
 .acc .bd .row .k{flex:1;font-size:13px;font-weight:550;}
 .acc .bd .row .v{font-size:12px;color:var(--muted);}
 .acc .bd .row .arr{color:var(--muted2);font-size:13px;}
-.badge{font-size:10px;font-weight:700;padding:3px 8px;border-radius:99px;background:var(--surface3);
-  color:var(--muted2);letter-spacing:.03em;}
-.badge.ok{background:rgba(46,211,183,.15);color:var(--ok);}
-.pgroup{font-size:10px;color:var(--muted2);letter-spacing:.06em;margin:12px 0 7px;}
-.pnote{font-size:11px;color:var(--muted2);line-height:1.6;margin-top:9px;padding:9px 11px;
-  background:var(--surface2);border-radius:9px;}
-.pnote b{color:var(--accent2);font-weight:600;}
+.badge{font-size:10px;font-weight:600;padding:3px 8px;border-radius:99px;background:var(--surface3);
+  color:var(--muted2);}
+.badge.ok{background:rgba(52,211,153,.14);color:var(--ok);}
 #testOut{font-size:11.5px;line-height:1.55;margin-top:9px;min-height:0;word-break:break-all;}
 #fBase{font-size:11.5px;letter-spacing:-.02em;}
-.rng{width:100%;-webkit-appearance:none;height:4px;border-radius:9px;background:var(--surface3);outline:none;}
-.rng::-webkit-slider-thumb{-webkit-appearance:none;width:20px;height:20px;border-radius:99px;
-  background:linear-gradient(135deg,#FF9A62,#FF5F6D);box-shadow:0 2px 8px rgba(0,0,0,.5);cursor:pointer;}
-.toast{position:absolute;left:50%;bottom:96px;transform:translate(-50%,10px);background:rgba(38,43,53,.97);
-  color:#fff;font-size:12.5px;padding:10px 18px;border-radius:99px;z-index:40;opacity:0;pointer-events:none;
-  transition:.25s;border:1px solid rgba(255,255,255,.1);white-space:nowrap;}
+.rng{width:100%;-webkit-appearance:none;height:2px;border-radius:9px;background:rgba(255,255,255,.12);outline:none;}
+.rng::-webkit-slider-thumb{-webkit-appearance:none;width:17px;height:17px;border-radius:99px;
+  background:var(--text);box-shadow:0 1px 6px rgba(0,0,0,.6);cursor:pointer;}
+.toast{position:absolute;left:50%;bottom:84px;transform:translate(-50%,8px);background:#1D2024;
+  color:var(--text);font-size:12px;padding:9px 16px;border-radius:99px;z-index:40;opacity:0;pointer-events:none;
+  transition:.22s;border:1px solid var(--line2);white-space:nowrap;}
 .toast.on{opacity:1;transform:translate(-50%,0);}
 </style>
 </head>
 <body>
 <div class="stage">
-  <div class="side" id="side">
-    <h4 id="sideTitle">热量日历 · 可运行原型 v0.5</h4>
-    <p id="sideP1">拍照 → 识别 → <b>只改份量档位，不改克数</b> → 入账 → 日历回看。全流程刻意避开"精确"，因为中餐估热量本来就有 ±30% 误差。</p>
-    <p id="sideP2"><b>识别两条路</b>：<br>
-      ① 云端 VL · qwen-vl-plus · 准 · 约 0.3 分/次 · 1.5 秒<br>
-      ② 本地食物库 · 0 延迟 · 不传图 · 你自己点选</p>
-    <p id="sideP3">在「我的 → 识别引擎」切换。<b>没配 API Key 时自动走本地模拟</b>，不联网也能完整体验。</p>
-    <p id="sideP4">点日历任意格子可回看当天、补记漏掉的餐。</p>
-  </div>
   <div class="phone" id="phone">
     <div class="sbar">
       <span>9:41</span>
@@ -354,6 +334,8 @@ const addDays = (d, n) => { const x = new Date(d); x.setDate(x.getDate() + n); r
 const esc = s => String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const uid = () => Math.random().toString(36).slice(2, 9);
 const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
+/* 数字统一带千分位：1,800 比 1800 更容易一眼读对量级 */
+const fmtNum = n => Number(n).toLocaleString('en-US');
 
 /* Y 轴刻度：先把上限抬到"整齐"的数字，再按不超过 4 段切分。
    直接按 maxV 分四等份会得到 1337 / 2674 这种读数，没人看得懂。 */
@@ -386,230 +368,126 @@ const shortK = v => v >= 1000 ? (v % 1000 ? (v / 1000).toFixed(1) : String(v / 1
       夹在英文界面里的中英混杂。
    ============================================================ */
 const LANGS = [
-  { id: 'zh', label: '中文', short: '中' },
-  { id: 'en', label: 'English', short: 'EN' }
+  { id: 'zh', short: '中' },
+  { id: 'en', short: 'EN' }
 ];
 let LANG = 'zh';                      // 当前语言，由 state.settings.lang 同步
 const lang = () => LANG;
 
 const I18N = {
   zh: {
-    /* 底部导航 */
-    'nav.today': '今日', 'nav.calendar': '日历', 'nav.me': '我的',
     /* 通用 */
-    'page.title': '热量日历 · 原型',
-    'c.kcal': 'kcal', 'c.approx': '约', 'c.target': '目标', 'c.cancel': '取消',
-    'c.close': '关闭', 'c.save': '保存', 'c.choose': '选', 'c.today': '今天',
-    'c.noRecord': '还没有记录',
+    'page.title': '热量日历',
+    'nav.today': '今日', 'nav.calendar': '日历', 'nav.me': '我的',
+    'c.approx': '约', 'c.target': '目标', 'c.today': '今天',
+    'c.save': '保存', 'c.cancel': '取消', 'c.close': '关闭', 'c.choose': '选',
     /* 今日 */
-    'today.headToday': '今天 · ', 'today.title': '今日热量', 'today.titlePast': '当日回看',
-    'today.left': '还可摄入', 'today.over': '已超出', 'today.intake': '已摄入',
-    'today.dailyTarget': '每日目标', 'today.secTitle': '今天吃了什么',
-    'today.manualAdd': '手动添加', 'today.photo': '拍照记录',
-    'today.portionFmt': '{p}份 · {u}',
-    /* 状态 */
-    'st.none': '未记录', 'st.under': '偏少', 'st.near': '达标', 'st.over': '超支',
-    /* 提示 */
-    'hint.empty': '今天还没有记录，拍一张就开始。',
-    'hint.over': '超出 <b style="color:var(--over)">{d} kcal</b>，剩下的时间清淡点就行。',
-    'hint.pastUnder': '这天摄入偏少，可能是有一餐漏记了。',
-    'hint.pastOk': '这天在目标区间内。',
-    'hint.low': '还剩 {n} kcal，按现在这个点，吃一顿正常的完全来得及。',
-    'hint.mid': '节奏正常，还剩 {n} kcal。',
-    'hint.high': '还剩 {n} kcal，往后收着点正好。',
-    /* 日历 */
-    'cal.monthFmt': '{y}年{m}月', 'cal.legendUnder': '未超 80%', 'cal.legendNear': '达标',
-    'cal.legendOver': '超支', 'cal.recDays': '记录天数', 'cal.okDays': '达标天数',
-    'cal.avgDay': '日均 kcal', 'cal.last7': '近 7 日', 'cal.noData': '没记录',
-    'wt.title': '体重', 'wt.unit': 'kg', 'wt.log': '记录',
-    'wt.today': '今天',
-    'wt.empty': '还没有体重记录',
-    'wt.emptyHint': '每周称 1-3 次就够，不用天天称。',
-    'wt.days': '近 {d} 天', 'wt.delta': '{v} kg',
-    'wt.newVal': '体重（kg）', 'wt.date': '日期', 'wt.save': '保存',
-    'wt.update': '更新这天', 'wt.history': '历史记录',
-    'wt.onlyOne': '只有一条记录，再称一次就能看到趋势',
-    'wt.saved': '已记录 {n} kg', 'wt.deleted': '已删除这条记录',
-    'wt.needVal': '填一个体重值',
-    'wt.badVal': '这个数字不太像体重（30–200 kg）',
-    'wt.dup': '这天已有 {n} kg，保存会覆盖',
-    'wt.ph': '例如 68.5',
-    'wt.tip': '体重日间波动 0.3–0.6 kg 很正常，看趋势别看单天。',
-    /* 我的 */
-    'me.settings': '设置', 'me.title': '我的', 'me.family': '家庭成员',
-    'me.addMember': '添加成员', 'me.memberDesc': '每人独立目标、独立数据',
-    'me.targetOf': '每日热量目标 · {n}',
-    'me.suggestRange': '建议区间 1500–2200',
-    'me.engine': '识别引擎',
-    'me.engineCloud': '云端 VL', 'me.engineCloudDesc': 'qwen-vl-plus · 约 0.3 分/次 · 1.5 秒',
-    'me.engineLocal': '本地食物库', 'me.engineLocalDesc': '内置中餐表（原型 22 条）· 0 延迟 · 你自己点选',
-    'me.engineTips': '<b>两层，按场景选：</b>不想动脑就<b>云端 VL</b>——拍照 1.5 秒出结果，一次约 0.3 分钱；不想传图、断网、或者就是不想花钱，就用<b>本地食物库</b>，自己点一下，0 延迟、100% 可控。',
-    'me.api': '视觉模型 API', 'me.configured': '已配置',
-    'me.notConfigured': '未配置 · 走模拟', 'me.apiDesc': '选预设自动填好地址和模型名，你只需要贴 Key。',
-    'me.cloudPresets': '云端 · 预设', 'me.phBase': '接口地址', 'me.phKey': 'API Key',
-    'me.phModel': '模型名', 'me.test': '测试连接',
-    'me.export': '导出全部数据', 'me.reset': '清空并重新生成演示数据',
-    'me.footer1': '热量日历 · 可运行原型 v0.5',
-    'me.footer2': '所有估算为区间值，仅供趋势参考，不作为医学建议',
-    'me.memberRow': '目标 {t} kcal · 今日 {k} kcal',
-    'me.memberTarget': '目标 {t} kcal',
-    'me.targetOf': '每日热量目标 · {n}',
-    'me.engineWhy': '为什么这么选？', 'me.engineHide': '收起说明',
-    'me.dataBackup': '数据与备份',
-    /* 弹层 */
-    'sh.pickMeal': '补记到哪一餐', 'sh.switchMember': '切换记录人',
-    'sh.memberSub': '每人独立目标、独立记录，互不干扰',
-    'sh.jumpDay': '去这天', 'sh.addMeal': '补记一餐',
-    'sh.dayEmpty': '这天还没记', 'sh.dayEmptySub': '想补就点下面的按钮，不补也没关系',
-    'sh.daySub': '约 {t} kcal · <b style="color:{c}">{s}</b> · 目标 {g}',
-    'sh.daySubEmpty': '这天没有记录 · 目标 {g}',
-    'sh.camSub': '拍整盘菜，斜 45° 能把整桌拍全',
-    'sh.photo': '拍照', 'sh.album': '从相册选', 'sh.manualInput': '手动输入',
-    'sh.whyPhoto': '<b>为什么要拍照：</b>省掉"搜食物 → 选克数"那 30 秒，这才是能坚持下来的关键。',
-    'sh.accuracy': '<b>关于准确度：</b>中餐估热量的误差本来就有 30% 上下，所以这里只给区间和三档份量，不给你假精确的数字。',
-    /* 识别 */
-    'rec.recognizing': '正在识别食物…',
-    'steps': ['正在识别食物…', '区分主菜和主食…', '按中式做法估算油量…', '对齐份量档位…'],
-    'rec.localMode': '本地库模式：不用识别，直接点选',
-    'rec.failed': '没识别出来，直接点选', 'rec.confirm': '确认一下份量，不准就调档',
-    'rec.found': '识别到 {n} 项 · 点份量可调', 'rec.total': '这一餐合计',
-    'rec.failMsg': '识别失败', 'rec.addTo': '加入{meal}',
-    /* 手动输入 */
-    'man.pickHint': '选一个最接近的，或者自己填。别纠结，估算就够了。',
-    'man.search': '搜一下，如 面 / 鸡 / 米饭', 'man.notFound': '没找到，直接在下面自己填',
-    'man.orSelf': '或者自己填', 'man.namePh': '食物名（如：妈妈做的红烧排骨）',
-    'man.kcalPh': '估算热量，填个大概就行', 'man.needBoth': '名字和热量都填一下',
+    'today.left': 'kcal 剩余', 'today.over': 'kcal 超出', 'today.intake': '已摄入',
     /* 份量 */
-    'p.low': '少', 'p.normal': '正常', 'p.high': '多', 'p.unitGuess': '估',
+    'p.low': '少', 'p.normal': '正常', 'p.high': '多',
+    /* 日历 */
+    'cal.monthFmt': '{y}年{m}月',
+    'cal.recDays': '记录', 'cal.okDays': '达标', 'cal.avgDay': '日均',
+    'cal.last7': '近 7 天', 'cal.noData': '无记录',
+    /* 体重 */
+    'wt.title': '体重', 'wt.unit': 'kg', 'wt.log': '记录', 'wt.today': '今天',
+    'wt.empty': '还没有记录', 'wt.history': '历史',
+    'wt.save': '保存', 'wt.ph': '如 68.5',
+    'wt.saved': '已记录 {n} kg', 'wt.deleted': '已删除',
+    'wt.needVal': '填一个体重', 'wt.badVal': '这个数字不像体重（30–200 kg）',
+    /* 我的 */
+    'me.title': '我的', 'me.family': '成员',
+    'me.addMember': '添加成员', 'me.targetOf': '每日目标 · {n}', 'me.memberTarget': '{t} kcal',
+    'me.engine': '识别方式',
+    'me.engineCloud': '云端 VL', 'me.engineCloudDesc': 'qwen-vl-plus · 约 0.3 分/次',
+    'me.engineLocal': '本地食物库', 'me.engineLocalDesc': '内置 22 道菜 · 不上传图片',
+    'me.api': '视觉模型 API', 'me.configured': '已配置', 'me.notConfigured': '未配置',
+    'me.phBase': '接口地址', 'me.phKey': 'API Key', 'me.phModel': '模型名',
+    'me.test': '测试', 'me.dataBackup': '数据',
+    'me.export': '导出数据', 'me.reset': '清空并重置',
+    /* 弹层 */
+    'sh.pickMeal': '哪一餐', 'sh.switchMember': '切换成员',
+    'sh.jumpDay': '去这天', 'sh.addMeal': '补记一餐', 'sh.dayEmpty': '这天没有记录',
+    'sh.photo': '拍照', 'sh.album': '相册', 'sh.manualInput': '手动输入',
+    /* 识别 */
+    'rec.recognizing': '识别中…',
+    'steps': ['识别中…', '区分主菜和主食…', '估算用油…', '对齐份量…'],
+    'rec.localMode': '本地食物库：直接点选',
+    'rec.failed': '没识别出来，手动点选', 'rec.confirm': '调一下份量',
+    'rec.total': '合计', 'rec.failMsg': '识别失败', 'rec.addTo': '加入{meal}',
+    /* 手动输入 */
+    'man.search': '搜索：面 / 鸡 / 米饭', 'man.notFound': '没找到，自己填',
+    'man.orSelf': '自己填', 'man.namePh': '食物名',
+    'man.kcalPh': '热量（约）', 'man.needBoth': '名字和热量都要填',
     /* 周 / 月 */
     'week': ['日', '一', '二', '三', '四', '五', '六'],
     'months': ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12'],
-    /* 左侧说明 */
-    'side.title': '热量日历 · 可运行原型 v0.5',
-    'side.p1': '拍照 → 识别 → <b>只改份量档位，不改克数</b> → 入账 → 日历回看。全流程刻意避开"精确"，因为中餐估热量本来就有 ±30% 误差。',
-    'side.p2': '<b>识别两条路</b>：<br>① 云端 VL · qwen-vl-plus · 准 · 约 0.3 分/次 · 1.5 秒<br>② 本地食物库 · 0 延迟 · 不传图 · 你自己点选',
-    'side.p3': '在「我的 → 识别引擎」切换。<b>没配 API Key 时自动走本地模拟</b>，不联网也能完整体验。',
-    'side.p4': '点日历任意格子可回看当天、补记漏掉的餐。',
     /* toast */
-    'toast.engineCloud': '云端识别（未配置接口则走模拟）',
-    'toast.engineLocal': '本地食物库：不识别，直接点选',
-    'toast.visionSaved': '已保存，下次拍照走真实接口',
-    'toast.visionCleared': '已清空，回到本地模拟',
-    'toast.needKey': 'Key 还没填。云端接口必须填 Key，否则没法验证。',
-    'toast.exported': '已导出 JSON',
-    'toast.reset': '已重置',
-    'toast.langZh': '已切换到中文',
-    'toast.langEn': 'Switched to English',
-    'toast.storageFull': '本地存储已满，试试导出后清理',
-    'toast.addedMember': '已添加 {n}，目标默认 1800',
-    'toast.targetUpdated': '目标已更新',
-    'toast.providerFilled': '{n} 已填入，补个 Key 就能用',
-    'toast.customMode': '自定义模式：自己填地址和模型名',
-    'toast.logged': '已记录，今日约 {n} kcal',
+    'toast.engineCloud': '云端识别', 'toast.engineLocal': '本地食物库',
+    'toast.visionSaved': '已保存', 'toast.visionCleared': '已清空',
+    'toast.exported': '已导出', 'toast.reset': '已重置',
+    'toast.langZh': '已切换到中文', 'toast.langEn': 'Switched to English',
+    'toast.storageFull': '本地存储已满', 'toast.addedMember': '已添加 {n}',
+    'toast.targetUpdated': '目标已更新', 'toast.providerFilled': '{n} 已填入',
+    'toast.customMode': '自定义接口', 'toast.logged': '已记录，今日约 {n} kcal',
     'prompt.newMember': '新成员叫什么？',
-    'confirm.reset': '清空所有记录并重新生成 75 天演示数据？'
+    'confirm.reset': '清空所有记录并重新生成演示数据？'
   },
   en: {
+    /* 通用 */
+    'page.title': 'Calorie Calendar',
     'nav.today': 'Today', 'nav.calendar': 'Calendar', 'nav.me': 'Me',
-    'page.title': 'Calorie Calendar · Prototype',
-    'c.kcal': 'kcal', 'c.approx': '~', 'c.target': 'Goal', 'c.cancel': 'Cancel',
-    'c.close': 'Close', 'c.save': 'Save', 'c.choose': 'Pick', 'c.today': 'Today',
-    'c.noRecord': 'Nothing logged yet',
-    'today.headToday': '', 'today.title': 'Calories today', 'today.titlePast': 'Day review',
-    'today.left': 'Remaining', 'today.over': 'Over', 'today.intake': 'Eaten',
-    'today.dailyTarget': 'Daily goal', 'today.secTitle': 'What you ate today',
-    'today.manualAdd': 'Add manually', 'today.photo': 'Log by photo',
-    'today.portionFmt': '{p} · {u}',
-    'st.none': 'Not logged', 'st.under': 'Light', 'st.near': 'On target', 'st.over': 'Over',
-    'hint.empty': 'Nothing logged today. Take a photo to start.',
-    'hint.over': '<b style="color:var(--over)">{d} kcal</b> over. Keep the rest of the day light.',
-    'hint.pastUnder': 'Light day — you may have missed a meal.',
-    'hint.pastOk': 'This day landed right in your target range.',
-    'hint.low': '{n} kcal left. At this hour, a normal meal still fits.',
-    'hint.mid': 'On pace. {n} kcal left.',
-    'hint.high': '{n} kcal left — ease off for the rest of the day.',
-    'cal.monthFmt': '{m} {y}', 'cal.legendUnder': 'Under 80%', 'cal.legendNear': 'On target',
-    'cal.legendOver': 'Over', 'cal.recDays': 'Days logged', 'cal.okDays': 'On target',
-    'cal.avgDay': 'Daily avg', 'cal.last7': 'Last 7 days', 'cal.noData': 'no entry',
-    'wt.title': 'Weight', 'wt.unit': 'kg', 'wt.log': 'Log',
-    'wt.today': 'Today',
-    'wt.empty': 'No weight entries yet',
-    'wt.emptyHint': 'Weighing 1-3 times a week is plenty.',
-    'wt.days': 'Last {d} days', 'wt.delta': '{v} kg',
-    'wt.newVal': 'Weight (kg)', 'wt.date': 'Date', 'wt.save': 'Save',
-    'wt.update': 'Update this day', 'wt.history': 'History',
-    'wt.onlyOne': 'Only one entry — log again to see a trend',
-    'wt.saved': 'Logged {n} kg', 'wt.deleted': 'Entry deleted',
-    'wt.needVal': 'Enter a weight',
-    'wt.badVal': 'That does not look like a weight (30–200 kg)',
-    'wt.dup': 'This day already has {n} kg — saving overwrites it',
-    'wt.ph': 'e.g. 68.5',
-    'wt.tip': 'Day-to-day weight swings of 0.3–0.6 kg are normal. Watch the trend, not one day.',
-    'me.settings': 'Settings', 'me.title': 'Me', 'me.family': 'Household',
-    'me.addMember': 'Add person', 'me.memberDesc': 'Own goal and own log per person',
-    'me.targetOf': 'Daily goal · {n}',
-    'me.suggestRange': 'Suggested 1500–2200',
-    'me.engine': 'Recognition engine',
-    'me.engineCloud': 'Cloud VL', 'me.engineCloudDesc': 'qwen-vl-plus · ~0.003 CNY each · 1.5s',
-    'me.engineLocal': 'Local food list', 'me.engineLocalDesc': '22 built-in dishes · zero latency · you pick',
-    'me.engineTips': '<b>Two paths, pick by situation:</b> don\'t want to think — <b>Cloud VL</b>, a photo answers in 1.5s for about 0.3 cents; no network, no photo upload, or no budget — use the <b>local food list</b>, one tap, zero latency, fully predictable.',
-    'me.api': 'Vision model API', 'me.configured': 'Connected',
-    'me.notConfigured': 'Not set · mock mode', 'me.apiDesc': 'Pick a preset to prefill endpoint and model; you only paste the key.',
-    'me.cloudPresets': 'Cloud · presets', 'me.phBase': 'Endpoint', 'me.phKey': 'API Key',
-    'me.phModel': 'Model', 'me.test': 'Test connection',
-    'me.export': 'Export all data', 'me.reset': 'Clear and regenerate demo data',
-    'me.footer1': 'Calorie Calendar · runnable prototype v0.5',
-    'me.footer2': 'All estimates are ranges, for trends only — not medical advice.',
-    'me.memberRow': 'Goal {t} kcal · today {k} kcal',
-    'me.memberTarget': 'Goal {t} kcal',
-    'me.targetOf': 'Daily goal · {n}',
-    'me.engineWhy': 'Why this choice?', 'me.engineHide': 'Hide',
-    'me.dataBackup': 'Data & backup',
+    'c.approx': '~', 'c.target': 'Goal', 'c.today': 'Today',
+    'c.save': 'Save', 'c.cancel': 'Cancel', 'c.close': 'Close', 'c.choose': 'Pick',
+    /* 今日 */
+    'today.left': 'kcal left', 'today.over': 'kcal over', 'today.intake': 'Eaten',
+    /* 份量 */
+    'p.low': 'Small', 'p.normal': 'Regular', 'p.high': 'Large',
+    /* 日历 */
+    'cal.monthFmt': '{m} {y}',
+    'cal.recDays': 'logged', 'cal.okDays': 'on target', 'cal.avgDay': 'avg',
+    'cal.last7': 'Last 7 days', 'cal.noData': 'no entry',
+    /* 体重 */
+    'wt.title': 'Weight', 'wt.unit': 'kg', 'wt.log': 'Log', 'wt.today': 'Today',
+    'wt.empty': 'Nothing yet', 'wt.history': 'History',
+    'wt.save': 'Save', 'wt.ph': 'e.g. 68.5',
+    'wt.saved': 'Logged {n} kg', 'wt.deleted': 'Deleted',
+    'wt.needVal': 'Enter a weight', 'wt.badVal': 'That is not a weight (30–200 kg)',
+    /* 我的 */
+    'me.title': 'Me', 'me.family': 'People',
+    'me.addMember': 'Add person', 'me.targetOf': 'Daily goal · {n}', 'me.memberTarget': '{t} kcal',
+    'me.engine': 'Recognition',
+    'me.engineCloud': 'Cloud VL', 'me.engineCloudDesc': 'qwen-vl-plus · ~0.003 CNY each',
+    'me.engineLocal': 'Local list', 'me.engineLocalDesc': '22 dishes · no upload',
+    'me.api': 'Vision API', 'me.configured': 'Connected', 'me.notConfigured': 'Not set',
+    'me.phBase': 'Endpoint', 'me.phKey': 'API Key', 'me.phModel': 'Model',
+    'me.test': 'Test', 'me.dataBackup': 'Data',
+    'me.export': 'Export data', 'me.reset': 'Clear and reset',
+    /* 弹层 */
     'sh.pickMeal': 'Which meal?', 'sh.switchMember': 'Switch person',
-    'sh.memberSub': 'Separate goals and logs, no interference',
-    'sh.jumpDay': 'Go to this day', 'sh.addMeal': 'Add a meal',
-    'sh.dayEmpty': 'Nothing logged this day', 'sh.dayEmptySub': 'Add it below if you want — or skip it',
-    'sh.daySub': '~{t} kcal · <b style="color:{c}">{s}</b> · goal {g}',
-    'sh.daySubEmpty': 'No record · goal {g}',
-    'sh.camSub': 'Shoot the whole plate — 45° gets the whole table in',
+    'sh.jumpDay': 'Go to day', 'sh.addMeal': 'Add a meal', 'sh.dayEmpty': 'Nothing logged',
     'sh.photo': 'Camera', 'sh.album': 'Library', 'sh.manualInput': 'Type it',
-    'sh.whyPhoto': '<b>Why photo:</b> it skips the 30 seconds of "search food → pick grams". That is what makes logging stick.',
-    'sh.accuracy': '<b>On accuracy:</b> Chinese dishes carry roughly ±30% estimation error anyway, so you get ranges and three portion levels — not fake precision.',
-    'rec.recognizing': 'Reading your plate…',
-    'steps': ['Reading your plate…', 'Separating mains and staples…', 'Estimating cooking oil…', 'Matching portion levels…'],
-    'rec.localMode': 'Local list: no recognition, just pick',
-    'rec.failed': "Couldn't recognize it — pick manually", 'rec.confirm': 'Check the portions, adjust if off',
-    'rec.found': '{n} items found · tap to adjust portions', 'rec.total': 'Meal total',
-    'rec.failMsg': 'Recognition failed', 'rec.addTo': 'Add to {meal}',
-    'man.pickHint': 'Pick the closest one, or type your own. Close enough is enough.',
-    'man.search': 'Search: noodle / chicken / rice', 'man.notFound': 'No match — type it below',
-    'man.orSelf': 'or type it yourself', 'man.namePh': 'Food name (e.g. mom\'s braised ribs)',
-    'man.kcalPh': 'Rough calories — a guess is fine', 'man.needBoth': 'Name and calories both needed',
-    'p.low': 'Small', 'p.normal': 'Regular', 'p.high': 'Large', 'p.unitGuess': 'est.',
+    /* 识别 */
+    'rec.recognizing': 'Reading…',
+    'steps': ['Reading…', 'Separating mains…', 'Estimating oil…', 'Matching portions…'],
+    'rec.localMode': 'Local list — pick directly',
+    'rec.failed': 'No match — pick manually', 'rec.confirm': 'Adjust the portions',
+    'rec.total': 'Total', 'rec.failMsg': 'Recognition failed', 'rec.addTo': 'Add to {meal}',
+    /* 手动输入 */
+    'man.search': 'Search: noodle / chicken / rice', 'man.notFound': 'No match — type it',
+    'man.orSelf': 'or type it', 'man.namePh': 'Food name',
+    'man.kcalPh': 'Calories (rough)', 'man.needBoth': 'Name and calories both needed',
     'week': ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'],
     'months': ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
-    'side.title': 'Calorie Calendar · runnable prototype v0.5',
-    'side.p1': 'Photo → recognize → <b>adjust portion level only, never grams</b> → log → review on the calendar. Precision is deliberately avoided: Chinese dishes carry ±30% estimation error by nature.',
-    'side.p2': '<b>Two recognition paths</b>:<br>① Cloud VL · qwen-vl-plus · accurate · ~0.003 CNY/call · 1.5s<br>② Local food list · zero latency · no upload · you pick',
-    'side.p3': 'Switch under "Me → Recognition engine". <b>With no API key it falls back to local mock</b>, so the whole flow works offline.',
-    'side.p4': 'Tap any calendar cell to review that day and backfill a missed meal.',
-    'toast.engineCloud': 'Cloud recognition (mock until a key is set)',
-    'toast.engineLocal': 'Local food list: no recognition, just pick',
-    'toast.visionSaved': 'Saved. Next photo goes to the real endpoint.',
-    'toast.visionCleared': 'Cleared. Back to local mock.',
-    'toast.needKey': 'No key yet. A cloud endpoint needs one to be verified.',
-    'toast.exported': 'JSON exported',
-    'toast.reset': 'Reset done',
-    'toast.langZh': '已切换到中文',
-    'toast.langEn': 'Switched to English',
-    'toast.storageFull': 'Local storage is full — export and clean up first.',
-    'toast.addedMember': '{n} added, default goal 1800',
-    'toast.targetUpdated': 'Goal updated',
-    'toast.providerFilled': '{n} prefilled — just add the key',
-    'toast.customMode': 'Custom mode: enter endpoint and model yourself',
-    'toast.logged': 'Logged. About {n} kcal today.',
+    'toast.engineCloud': 'Cloud recognition', 'toast.engineLocal': 'Local list',
+    'toast.visionSaved': 'Saved', 'toast.visionCleared': 'Cleared',
+    'toast.exported': 'Exported', 'toast.reset': 'Reset done',
+    'toast.langZh': '已切换到中文', 'toast.langEn': 'Switched to English',
+    'toast.storageFull': 'Local storage is full', 'toast.addedMember': '{n} added',
+    'toast.targetUpdated': 'Goal updated', 'toast.providerFilled': '{n} prefilled',
+    'toast.customMode': 'Custom endpoint', 'toast.logged': 'Logged · about {n} kcal today',
     'prompt.newMember': 'Name of the new person?',
-    'confirm.reset': 'Clear all records and regenerate 75 days of demo data?'
+    'confirm.reset': 'Clear all records and regenerate demo data?'
   }
 };
 
@@ -649,11 +527,6 @@ function itemName(it) {
   const f = FOOD_POOL.find(x => x.n === it.name || x.en === it.name);
   return (f && f.en) || it.name;
 }
-function itemUnit(it) {
-  if (LANG !== 'en') return it.unit || '';
-  const f = FOOD_POOL.find(x => x.n === it.name || x.en === it.name);
-  return (f && f.eu) || it.unit || '';
-}
 
 function mulberry32(a) {
   return function () {
@@ -665,42 +538,32 @@ function mulberry32(a) {
 }
 
 /* ---------- 视觉模型预设 ----------
-   只保留云端 VL 一条主线 + 本地食物库兜底。
-   端侧（Ollama / llama.cpp）已移除：2B 视觉模型估中餐热量靠的是世界知识而不是
-   视觉能力，"这盘放了多少油、肉是肥是瘦"它撑不住，首 token 还要 3 秒以上。 */
+   只保留云端 VL 一条主线 + 本地食物库兜底。端侧模型已移除：
+   2B 视觉模型估中餐热量靠世界知识而不是视觉能力，且首 token 3 秒以上。 */
 const VISION_PRESETS = {
   dashscope: {
     short: '通义百炼', shortEn: 'Bailian',
     base: 'https://dashscope.aliyuncs.com/compatible-mode/v1',
-    model: 'qwen-vl-plus',
-    note: '<b>最省的选择。</b>qwen-vl-plus 输入 0.0015 元/千 tokens，一次拍照约 0.3 分钱，一天三顿、一个月不到 3 毛。',
-    noteEn: '<b>The cheapest option.</b> qwen-vl-plus input is ¥0.0015 per 1k tokens — about ¥0.002 per photo, under ¥0.3 a month at three meals a day.'
+    model: 'qwen-vl-plus'
   },
   ark: {
     short: '火山豆包', shortEn: 'Volcengine Ark',
     base: 'https://ark.cn-beijing.volces.com/api/v3',
-    model: '',
-    note: '<b>这里有个坑：</b>模型名要填控制台的<b>推理接入点 ID</b>（ep- 开头），不是 doubao-xxx。',
-    noteEn: '<b>Gotcha:</b> the model field takes the <b>endpoint ID</b> from the console (starts with ep-), not doubao-xxx.'
+    model: ''
   },
   zhipu: {
     short: '智谱', shortEn: 'Zhipu',
     base: 'https://open.bigmodel.cn/api/paas/v4',
-    model: 'glm-4v-flash',
-    note: 'glm-4v-flash 有免费额度，适合先跑通再说。地址与模型名以官方文档为准。',
-    noteEn: 'glm-4v-flash has a free tier, good for a first run. Confirm endpoint and model name in the official docs.'
+    model: 'glm-4v-flash'
   },
   custom: {
     short: '自定义', shortEn: 'Custom',
     base: '',
-    model: '',
-    note: '任何 OpenAI 兼容的多模态接口都行。浏览器直连多半会被 CORS 拦，正式版要加一层自己的代理或云函数。',
-    noteEn: 'Any OpenAI-compatible vision endpoint works. Direct browser calls are usually blocked by CORS — ship a small proxy or cloud function for production.'
+    model: ''
   }
 };
-/* 预设的本地化出口：short / note 都不在视图里硬编码 */
+/* 预设名的本地化出口：视图里不出现三目判断 */
 const presetShort = p => (LANG === 'en' && p.shortEn) ? p.shortEn : p.short;
-const presetNote = p => (LANG === 'en' && p.noteEn) ? p.noteEn : p.note;
 
 /* ---------- 食物库（中餐常见，只做档位估算） ----------
    en / eu 是英文模式的菜名与单位。菜名用手册化译名（Kung Pao chicken）
@@ -777,7 +640,7 @@ const view = {
   calMonth: new Date().getMonth(),
   sheet: null, // {type, ...}
   // 「我的」页折叠状态：默认只展开每天都要用的，配置类全部收起
-  me: { api: false, why: false, data: false },
+  me: { api: false, data: false },
   vdraft: null // API 表单草稿：折叠后输入框不在 DOM 里，靠它保住没保存的输入
 };
 
@@ -1000,23 +863,6 @@ const portionLabel = p => t((PORTIONS.find(x => Math.abs(x.v - p) < 0.01) || POR
 /* 成员名是用户数据：只有内置的演示成员带英文名，自己添加的原样显示 */
 const memberName = mm => (LANG === 'en' && mm.en) ? mm.en : mm.name;
 
-/* 当日提示必须结合「时间进度」，否则早上十点就会说"摄入偏少、容易报复性进食"。
-   这是同类产品最常见的低级错误：只比较摄入量和目标，不看现在几点。 */
-function dayHint(total, target, key) {
-  if (!total) return t('hint.empty');
-  if (total > target * 1.05) return t('hint.over', { d: total - target });
-  const isToday = key === dk(new Date());
-  if (!isToday) return total < target * 0.8 ? t('hint.pastUnder') : t('hint.pastOk');
-  const now = new Date();
-  const h = now.getHours() + now.getMinutes() / 60;
-  const expected = clamp((h - 6) / 15, 0.08, 1);   // 6:00 起算，21:00 到满
-  const progress = total / target;
-  const left = target - total;
-  if (progress < expected * 0.55) return t('hint.low', { n: left });
-  if (progress < expected * 1.0) return t('hint.mid', { n: left });
-  return t('hint.high', { n: left });
-}
-
 function dayStatus(total, target) {
   if (!total) return 'none';
   const r = total / target;
@@ -1024,7 +870,6 @@ function dayStatus(total, target) {
   if (r <= 1.05) return 'near';
   return 'over';
 }
-const statusText = st => t('st.' + st);
 
 /* ---------- 渲染 ---------- */
 const app = document.getElementById('app');
@@ -1036,11 +881,11 @@ const root = document.getElementById('phone');
 function render(keepScroll) {
   const m = member();
   const sc = keepScroll ? app.scrollTop : 0;
+  syncDocLang();
   if (view.tab === 'today') app.innerHTML = viewToday(m);
   else if (view.tab === 'calendar') app.innerHTML = viewCalendar(m);
   else app.innerHTML = viewMe(m);
   renderTabbar();
-  renderSide();
   app.scrollTop = sc;
   // SVG 高度是 auto（依赖容器宽度），innerHTML 刚替换时那一段还没算出高度，
   // 直接设 scrollTop 会被浏览器压到更小的值。下一帧再校一次。
@@ -1048,13 +893,8 @@ function render(keepScroll) {
   if (view.sheet) renderSheet();
 }
 
-/* 左侧说明区也跟着切语言（它是页面的一部分，不是注释） */
-function renderSide() {
-  const map = { sideTitle: 'side.title', sideP1: 'side.p1', sideP2: 'side.p2', sideP3: 'side.p3', sideP4: 'side.p4' };
-  Object.keys(map).forEach(id => {
-    const el = document.getElementById(id);
-    if (el) el.innerHTML = t(map[id]);
-  });
+/* 语言切换要同步到文档本身：<html lang> 影响排版断行，title 影响浏览器标签页 */
+function syncDocLang() {
   document.documentElement.lang = LANG === 'en' ? 'en' : 'zh-CN';
   document.title = t('page.title');
 }
@@ -1062,7 +902,7 @@ function renderSide() {
 function renderTabbar() {
   // 注意：回调参数不能叫 t —— 会遮蔽全局取词函数 t()，导致导航栏永远显示中文
   const tabs = [
-    { id: 'today', label: 'nav.today', d: 'M4 12h5M15 12h5M12 4v5M12 15v5' },
+    { id: 'today', label: 'nav.today', d: 'M4 6h16M4 12h16M4 18h9' },
     { id: 'calendar', label: 'nav.calendar', d: 'M4 7a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V7ZM4 10h16M9 3v4M15 3v4' },
     { id: 'me', label: 'nav.me', d: 'M12 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8ZM4.5 20c1.2-3.6 4-5.4 7.5-5.4s6.3 1.8 7.5 5.4' }
   ];
@@ -1072,7 +912,10 @@ function renderTabbar() {
     </div>`).join('');
 }
 
-/* ---------- 视图：今日 ---------- */
+/* ---------- 视图：今日 ----------
+   一屏只回答一个问题：今天还能吃多少。
+   所以这里没有环形图、没有鼓励语、没有"还没记录"的占位文案 ——
+   大数字 + 一根细线 + 每餐三行，就够读懂。 */
 function viewToday(m) {
   const key = view.dateKey;
   const total = dayTotal(m.id, key);
@@ -1081,10 +924,6 @@ function viewToday(m) {
   const pct = clamp(total / m.target, 0, 1);
   const d = parseDK(key);
   const isToday = key === dk(new Date());
-  const st = dayStatus(total, m.target);
-
-  const C = 2 * Math.PI * 54;
-  const dash = C * pct;
 
   const mealsHtml = MEALS.map(meal => {
     const arr = dayMeals(m.id, key)[meal.id] || [];
@@ -1094,67 +933,40 @@ function viewToday(m) {
         <div class="ie">${it.emoji || '🍽'}</div>
         <div class="in">
           <div class="n">${esc(itemName(it))}</div>
-          <div class="p">${t('today.portionFmt', { p: portionLabel(it.portion), u: esc(itemUnit(it)) })}</div>
+          <div class="p">${portionLabel(it.portion)}</div>
         </div>
         <div class="ik">${itemKcal(it)}</div>
-        <div class="ik" style="color:var(--muted2);margin-left:-4px;width:0;overflow:hidden">
-          <span data-act="delItem" data-meal="${meal.id}" data-id="${it.id}" style="width:18px">×</span>
-        </div>
+        <div class="del" data-act="delItem" data-meal="${meal.id}" data-id="${it.id}">×</div>
       </div>`).join('');
-    return `
-      <div class="meal">
-        <div class="meal-h">
-          <div class="ico">${meal.ico}</div>
-          <div class="nm">${mealName(meal.id)}</div>
-          <div class="kk">${k ? t('c.approx') + ' <b>' + k + '</b>' : '<span style="color:var(--muted2)">—</span>'}</div>
-        </div>
-        ${arr.length ? `<div class="items">${rows}</div>` : `<div class="empty">${t('c.noRecord')}</div>`}
-        <div class="addbtn" data-act="openCam" data-meal="${meal.id}">＋ ${t('today.photo')}</div>
-      </div>`;
+    return `<div class="meal">
+      <div class="meal-h">
+        <div class="nm">${mealName(meal.id)}</div>
+        <div class="kk">${k ? k : ''}</div>
+        <div class="add" data-act="openCam" data-meal="${meal.id}">＋</div>
+      </div>
+      ${arr.length ? rows : `<div class="addline" data-act="openCam" data-meal="${meal.id}">＋</div>`}
+    </div>`;
   }).join('');
 
   return `<div class="page">
     <div class="head">
-      <div>
-        <div class="d1">${isToday ? t('today.headToday') : ''}${fmtDate(d)}</div>
-        <div class="d2">${isToday ? t('today.title') : t('today.titlePast')}</div>
-      </div>
+      <div class="d2">${fmtDate(d)}${isToday ? ' · ' + t('c.today') : ''}</div>
       <div class="mchip" data-act="switchMember">
         <div class="mav" style="background:${m.color}">${m.emoji}</div>
         <span>${esc(memberName(m))}</span>
-        <span style="color:var(--muted2);font-size:9px">▾</span>
       </div>
     </div>
 
-    <div class="ring-card">
-      <div class="ring-wrap">
-        <div class="ring">
-          <svg width="126" height="126" viewBox="0 0 126 126">
-            <defs>
-              <linearGradient id="g1" x1="0" y1="0" x2="1" y2="1">
-                <stop offset="0%" stop-color="#FFB088"/><stop offset="100%" stop-color="#FF5F6D"/>
-              </linearGradient>
-            </defs>
-            <circle cx="63" cy="63" r="54" fill="none" stroke="#262B35" stroke-width="11"/>
-            <circle cx="63" cy="63" r="54" fill="none" stroke="url(#g1)" stroke-width="11"
-              stroke-linecap="round" stroke-dasharray="${dash} ${C}" style="transition:stroke-dasharray .6s"/>
-          </svg>
-          <div class="ctr">
-            <div class="lab">${left >= 0 ? t('today.left') : t('today.over')}</div>
-            <div class="big" style="${left < 0 ? 'color:var(--over)' : ''}">${Math.abs(left)}</div>
-            <div class="unit">KCAL</div>
-          </div>
-        </div>
-        <div class="rr">
-          <div class="row"><span>${t('today.intake')}</span><span>${total ? t('c.approx') + ' ' + lo + '–' + hi : '—'}</span></div>
-          <div class="row"><span>${t('today.dailyTarget')}</span><span>${m.target}</span></div>
-          <div class="bar"><i style="width:${pct * 100}%"></i></div>
-          <div class="hint">${dayHint(total, m.target, key)}</div>
-        </div>
+    <div class="summary">
+      <div class="big"${left < 0 ? ' style="color:var(--over)"' : ''}>${fmtNum(Math.abs(left))}</div>
+      <div class="lab">${left >= 0 ? t('today.left') : t('today.over')}</div>
+      <div class="meter"><i style="width:${pct * 100}%"></i></div>
+      <div class="meta">
+        <span>${t('today.intake')} <b>${total ? fmtNum(lo) + '–' + fmtNum(hi) : '—'}</b></span>
+        <span>${t('c.target')} <b>${fmtNum(m.target)}</b></span>
       </div>
     </div>
 
-    <div class="sec"><h3>${t('today.secTitle')}</h3><span class="act" data-act="openQuick">${t('today.manualAdd')}</span></div>
     ${mealsHtml}
   </div>`;
 }
@@ -1165,20 +977,15 @@ function weightCard(m) {
   const arr = weightSeries(m.id, 30);
   const cur = arr.length ? arr[arr.length - 1].kg : null;
   const dl = weightDelta(arr);
-  const spanDays = arr.length > 1
-    ? Math.round((parseDK(arr[arr.length - 1].key) - parseDK(arr[0].key)) / 864e5)
-    : 0;
   const cls = dltCls(dl);
 
   return `<div class="sec"><h3>${t('wt.title')}</h3>
-      <span class="act" style="color:var(--accent2)" data-act="openWeight">＋ ${t('wt.log')}</span>
+      <span class="act" data-act="openWeight">＋ ${t('wt.log')}</span>
     </div>
-    <div class="chart wcard" data-act="openWeight" style="cursor:pointer">
-      ${cur === null ? '' : `<div class="wtop">
+    <div class="wcard" data-act="openWeight" style="cursor:pointer">
+      ${cur === null ? `<div class="wempty">${t('wt.empty')}</div>` : `<div class="wtop">
         <div class="wnum">${cur.toFixed(1)}<i>${t('wt.unit')}</i></div>
-        ${dl === null
-          ? `<div class="wdlt flat">${t('wt.onlyOne')}</div>`
-          : `<div class="wdlt ${cls}">${fmtKg(dl)} kg · ${t('wt.days', { d: spanDays })}</div>`}
+        ${dl === null ? '' : `<div class="wdlt ${cls}">${fmtKg(dl)} kg</div>`}
       </div>`}
       ${weightChart(m.id, 30, 96)}
       ${arr.length > 1 ? `<div class="wx"><span>${fmtMD(arr[0].key)}</span><span>${fmtMD(arr[arr.length - 1].key)}</span></div>` : ''}
@@ -1249,31 +1056,24 @@ function viewCalendar(m) {
 
   return `<div class="page">
     <div class="calhead">
-      <div>
-        <div class="m">${fmtMonth(y, mo)}<span>· ${esc(memberName(m))}</span></div>
-      </div>
-      <div style="display:flex;gap:7px">
+      <div class="m">${fmtMonth(y, mo)}<span>· ${esc(memberName(m))}</span></div>
+      <div style="display:flex;gap:2px">
         <div class="navb" data-act="calPrev">‹</div>
         <div class="navb" data-act="calNext">›</div>
       </div>
     </div>
     <div class="wk">${weekNames().map(w => `<div>${w}</div>`).join('')}</div>
     <div class="grid">${cells}</div>
-    <div class="legend">
-      <span><i style="background:var(--ok)"></i>${t('cal.legendUnder')}</span>
-      <span><i style="background:var(--warn)"></i>${t('cal.legendNear')}</span>
-      <span><i style="background:var(--over)"></i>${t('cal.legendOver')}</span>
-    </div>
 
-    <div class="mstat">
-      <div class="c"><div class="v">${recDays}</div><div class="l">${t('cal.recDays')}</div></div>
-      <div class="c"><div class="v" style="color:var(--warn)">${okDays}</div><div class="l">${t('cal.okDays')}</div></div>
-      <div class="c"><div class="v">${avg || '—'}</div><div class="l">${t('cal.avgDay')}</div></div>
+    <div class="mstats">
+      <span>${t('cal.recDays')} <b>${recDays}</b></span>
+      <span>${t('cal.okDays')} <b style="color:var(--warn)">${okDays}</b></span>
+      <span>${t('cal.avgDay')} <b>${avg ? fmtNum(avg) : '—'}</b></span>
     </div>
 
     <div class="sec"><h3>${t('cal.last7')}</h3>
-      <span class="act" style="color:var(--muted2);display:inline-flex;align-items:center;gap:6px">
-        <i style="display:inline-block;width:15px;border-top:1px dashed var(--warn);opacity:.85"></i>${t('c.target')} ${m.target}
+      <span class="act" style="cursor:default">
+        <i style="display:inline-block;width:14px;border-top:1px dashed rgba(251,191,36,.7)"></i>${t('c.target')} ${fmtNum(m.target)}
       </span>
     </div>
     <div class="chart">
@@ -1285,7 +1085,7 @@ function viewCalendar(m) {
           <div class="cols">${barsHtml}</div>
         </div>
       </div>
-      <div class="xlabels" style="margin-left:34px">${xHtml}</div>
+      <div class="xlabels" style="margin-left:30px">${xHtml}</div>
     </div>
 
     ${weightCard(m)}
@@ -1293,6 +1093,9 @@ function viewCalendar(m) {
 }
 
 /* ---------- 视图：我的 ---------- */
+/* ---------- 视图：我的 ----------
+   设置页只回答两件事：谁在用、识别走哪条路。
+   其余（接口密钥、导出）都是低频配置，折起来，标题行用状态徽标代替说明文字。 */
 function viewMe(m) {
   const cur = state.settings.vision || {};
   const hasCfg = !!(cur.base && cur.key);
@@ -1302,64 +1105,53 @@ function viewMe(m) {
   if (!view.vdraft) view.vdraft = { base: cur.base || '', key: cur.key || '', model: cur.model || '' };
   const pv = id => `<div class="pchip ${cur.provider === id ? 'on' : ''}" data-act="setProvider" data-id="${id}">${presetShort(VISION_PRESETS[id])}</div>`;
   const rows = state.members.map(mm => {
-    const t2 = dayTotal(mm.id, dk(new Date()));
     const on = mm.id === state.currentMemberId;
     return `<div class="mrow ${on ? 'on' : ''}" data-act="pickMember" data-id="${mm.id}">
       <div class="av" style="background:${mm.color}">${mm.emoji}</div>
-      <div class="info">
-        <div class="n">${esc(memberName(mm))}</div>
-        <div class="s">${t('me.memberRow', { t: mm.target, k: t2 || 0 })}</div>
-      </div>
+      <div class="info"><div class="n">${esc(memberName(mm))}</div><div class="s">${t('me.memberTarget', { t: fmtNum(mm.target) })}</div></div>
       <div class="chk">${on ? '✓' : ''}</div>
     </div>`;
   }).join('');
 
   return `<div class="page">
-    <div class="head"><div>
-      <div class="d1">${t('me.settings')}</div><div class="d2">${t('me.title')}</div>
-    </div>
+    <div class="head">
+      <div class="d2">${t('me.title')}</div>
       <div class="langpill">
         ${LANGS.map(L => `<div class="lp ${LANG === L.id ? 'on' : ''}" data-act="setLang" data-id="${L.id}">${L.short}</div>`).join('')}
       </div>
     </div>
 
-    <!-- 成员 + 目标合成一张卡：目标本来就属于"当前成员"，拆成两张只是在拉长页面 -->
     <div class="cardt">${t('me.family')}</div>
     <div class="card">${rows}
       <div class="mrow" data-act="addMember">
-        <div class="av" style="background:var(--surface3);font-size:17px">＋</div>
-        <div class="info"><div class="n" style="color:var(--accent)">${t('me.addMember')}</div>
-        <div class="s">${t('me.memberDesc')}</div></div>
+        <div class="av" style="background:transparent;border:1px dashed var(--line2);color:var(--muted2)">＋</div>
+        <div class="info"><div class="n" style="color:var(--muted)">${t('me.addMember')}</div></div>
       </div>
       <div class="row" style="display:block">
-        <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:11px">
+        <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:14px">
           <span class="k" style="font-size:12.5px">${t('me.targetOf', { n: esc(memberName(m)) })}</span>
-          <span style="font-size:14px;font-weight:800;color:var(--accent2)" id="targetVal">${m.target} kcal</span>
+          <span style="font-size:14px;font-weight:650;font-variant-numeric:tabular-nums" id="targetVal">${fmtNum(m.target)}</span>
         </div>
         <input class="rng" type="range" min="1200" max="3000" step="50" value="${m.target}"
-               oninput="document.getElementById('targetVal').textContent=this.value+' kcal'"
+               oninput="document.getElementById('targetVal').textContent=(+this.value).toLocaleString('en-US')"
                onchange="setTarget(+this.value)">
-        <div style="display:flex;justify-content:space-between;font-size:10px;color:var(--muted2);margin-top:7px">
-          <span>1200</span><span>${t('me.suggestRange')}</span><span>3000</span>
-        </div>
       </div>
     </div>
 
-    <!-- 识别引擎：两档互斥，用分段控件比两行列表省一半高度 -->
     <div class="cardt">${t('me.engine')}</div>
     <div class="card">
-      <div class="row" style="display:block;padding-bottom:13px">
+      <div class="row" style="display:block;padding-bottom:14px">
         <div class="seg">
           <div class="o ${engine === 'cloud' ? 'on' : ''}" data-act="setEngine" data-id="cloud">${t('me.engineCloud')}</div>
           <div class="o ${engine === 'local' ? 'on' : ''}" data-act="setEngine" data-id="local">${t('me.engineLocal')}</div>
         </div>
-        <div class="hint" style="margin-top:9px">${engine === 'cloud' ? t('me.engineCloudDesc') : t('me.engineLocalDesc')}</div>
-        <div class="foldlink" data-act="toggleWhy">${fold.why ? t('me.engineHide') : t('me.engineWhy')} <span style="font-size:10px">${fold.why ? '▴' : '▾'}</span></div>
-        ${fold.why ? `<div class="tips" style="margin:9px 0 0">${t('me.engineTips')}</div>` : ''}
+        <div style="font-size:11px;color:var(--muted2);margin-top:10px">
+          ${engine === 'cloud' ? t('me.engineCloudDesc') : t('me.engineLocalDesc')}
+        </div>
       </div>
     </div>
 
-    <!-- API 配置：一次配好就不再动，默认收起 -->
+    <!-- 一次配好就不再动，默认收起 -->
     <div class="acc ${fold.api ? 'on' : ''}">
       <div class="hd" data-act="toggleApi">
         <div class="k">${t('me.api')}</div>
@@ -1367,26 +1159,22 @@ function viewMe(m) {
         <span class="cv">›</span>
       </div>
       ${fold.api ? `<div class="bd">
-        <div class="hint" style="margin-bottom:12px">${t('me.apiDesc')}</div>
-        <div class="pgroup" style="margin-top:0">${t('me.cloudPresets')}</div>
-        <div style="display:flex;flex-wrap:wrap;gap:6px">
+        <div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px">
           ${pv('dashscope')}${pv('ark')}${pv('zhipu')}${pv('custom')}
         </div>
-        <div style="display:grid;gap:8px;margin-top:13px">
+        <div style="display:grid;gap:8px">
           <input class="fld" id="fBase" placeholder="${t('me.phBase')}" value="${esc(view.vdraft.base)}" oninput="visionDraft('base',this.value)">
           <input class="fld" id="fKey" placeholder="${t('me.phKey')}" type="password" value="${esc(view.vdraft.key)}" oninput="visionDraft('key',this.value)">
           <input class="fld" id="fModel" placeholder="${t('me.phModel')}" value="${esc(view.vdraft.model)}" oninput="visionDraft('model',this.value)">
-          <div style="display:flex;gap:8px">
+          <div style="display:flex;gap:8px;padding-top:2px">
             <button class="btn gho" style="padding:10px;font-size:12.5px" data-act="testVision">${t('me.test')}</button>
             <button class="btn pri" style="padding:10px;font-size:12.5px" data-act="saveVision">${t('c.save')}</button>
           </div>
           <div id="testOut"></div>
         </div>
-        <div class="pnote">${presetNote(VISION_PRESETS[cur.provider] || VISION_PRESETS.custom)}</div>
       </div>` : ''}
     </div>
 
-    <!-- 数据：低频 + 含危险操作，收起 -->
     <div class="acc ${fold.data ? 'on' : ''}">
       <div class="hd" data-act="toggleData">
         <div class="k">${t('me.dataBackup')}</div>
@@ -1400,10 +1188,6 @@ function viewMe(m) {
           <div class="k" style="color:var(--over)">${t('me.reset')}</div><div class="arr">›</div>
         </div>
       </div>` : ''}
-    </div>
-
-    <div style="text-align:center;font-size:10px;color:var(--muted2);padding:20px 4px 8px;line-height:1.7">
-      ${t('me.footer1')}<br>${t('me.footer2')}
     </div>
   </div>`;
 }
@@ -1431,9 +1215,8 @@ root.addEventListener('click', e => {
       toast(id === 'en' ? t('toast.langEn') : t('toast.langZh'));
       break;
     }
-    // 「我的」页三处折叠：只改 view 里的开关再重渲染，并保住滚动位置
+    // 「我的」页两处折叠：只改 view 里的开关再重渲染，并保住滚动位置
     case 'toggleApi': view.me.api = !view.me.api; render(true); break;
-    case 'toggleWhy': view.me.why = !view.me.why; render(true); break;
     case 'toggleData': view.me.data = !view.me.data; render(true); break;
     case 'openCam': view.sheet = { type: 'cam', meal }; renderSheet(); break;
     case 'openQuick': view.sheet = { type: 'quick', meal: guessMeal() }; renderSheet(); break;
@@ -1631,28 +1414,31 @@ function renderSheet() {
   if (s.type === 'quick') openManualEntry(s.meal, mask, null);
 }
 
-/* 当天详情：点日历格子从这里进，不再粗暴地跳走整个页面 */
+/* 当天详情：点日历格子从这里进，不再粗暴地跳走整个页面。
+   条目直接复用今日页的 .meal / .item，一套样式，两边看起来是同一个东西。 */
 function sheetDay(key) {
   const mid = state.currentMemberId;
   const m = member();
   const d = parseDK(key);
   const total = dayTotal(mid, key);
-  const st = dayStatus(total, m.target);
   const isToday = key === dk(new Date());
   const meals = dayMeals(mid, key);
 
   const blocks = MEALS.map(ml => {
     const arr = meals[ml.id] || [];
     if (!arr.length) return '';
-    return `<div style="margin-bottom:14px">
-      <div style="display:flex;justify-content:space-between;font-size:11.5px;color:var(--muted);margin-bottom:7px;letter-spacing:.04em">
-        <span>${ml.ico} ${mealName(ml.id)}</span><span>${t('c.approx')} ${mealKcal(arr)} kcal</span>
+    return `<div class="meal">
+      <div class="meal-h">
+        <div class="nm">${mealName(ml.id)}</div>
+        <div class="kk">${mealKcal(arr)}</div>
       </div>
-      ${arr.map(it => `<div style="display:flex;align-items:center;gap:9px;padding:8px 11px;background:var(--surface2);border-radius:10px;margin-bottom:5px">
-        <span style="font-size:14px">${it.emoji || '🍽'}</span>
-        <span style="flex:1;font-size:13px;font-weight:550">${esc(itemName(it))}</span>
-        <span style="font-size:10px;color:var(--muted2)">${portionLabel(it.portion)}</span>
-        <span style="font-size:12.5px;color:var(--muted);font-variant-numeric:tabular-nums">${itemKcal(it)}</span>
+      ${arr.map(it => `<div class="item">
+        <div class="ie">${it.emoji || '🍽'}</div>
+        <div class="in">
+          <div class="n">${esc(itemName(it))}</div>
+          <div class="p">${portionLabel(it.portion)}</div>
+        </div>
+        <div class="ik">${itemKcal(it)}</div>
       </div>`).join('')}
     </div>`;
   }).filter(Boolean).join('');
@@ -1661,17 +1447,10 @@ function sheetDay(key) {
     <div class="sh-h">
       <div class="grab"></div>
       <div class="t">${fmtDate(d)}${isToday ? ' · ' + t('c.today') : ''}</div>
-      <div class="s">${total
-        ? t('sh.daySub', {
-            t: total,
-            s: statusText(st),
-            g: m.target,
-            c: st === 'over' ? 'var(--over)' : st === 'near' ? 'var(--warn)' : 'var(--ok)'
-          })
-        : t('sh.daySubEmpty', { g: m.target })}</div>
+      <div class="s">${total ? fmtNum(total) + ' / ' + fmtNum(m.target) : ''}</div>
       <div class="x" data-act="closeSheet">✕</div>
     </div>
-    <div class="sh-b">${blocks || `<div style="font-size:12.5px;color:var(--muted2);padding:26px 8px;text-align:center;line-height:1.9">${t('sh.dayEmpty')}<br><span style="font-size:11.5px">${t('sh.dayEmptySub')}</span></div>`}</div>
+    <div class="sh-b">${blocks || `<div class="wempty">${t('sh.dayEmpty')}</div>`}</div>
     <div class="sh-f">
       <button class="btn gho" data-act="jumpDay" data-key="${key}">${t('sh.jumpDay')}</button>
       <button class="btn pri" data-act="addToDay" data-key="${key}">${t('sh.addMeal')}</button>
@@ -1690,11 +1469,10 @@ function sheetPickMeal(s) {
       <div class="x" data-act="closeSheet">✕</div>
     </div>
     <div class="sh-b" style="padding:14px 18px">
-      ${MEALS.map(ml => `<div class="mrow" style="background:var(--surface2);border-radius:12px;border:none;margin-bottom:8px"
-        data-act="pickMealFor" data-meal="${ml.id}" data-key="${s.key}">
-        <div class="av" style="background:var(--surface3);width:32px;height:32px;flex:0 0 32px;font-size:15px">${ml.ico}</div>
+      ${MEALS.map(ml => `<div class="mrow" data-act="pickMealFor" data-meal="${ml.id}" data-key="${s.key}">
+        <div class="av" style="background:var(--surface3);width:28px;height:28px;flex:0 0 28px;font-size:13px">${ml.ico}</div>
         <div class="info"><div class="n">${mealName(ml.id)}</div></div>
-        <div style="color:var(--muted2);font-size:14px">›</div>
+        <div style="color:var(--muted2);font-size:13px">›</div>
       </div>`).join('')}
     </div>
     <div class="sh-f"><button class="btn gho" data-act="closeSheet">${t('c.cancel')}</button></div>
@@ -1707,23 +1485,22 @@ function sheetCam(s) {
   return `<div class="sheet">
     <div class="sh-h">
       <div class="grab"></div>
-      <div class="t"><span>${mealTitle}</span></div>
-      <div class="s" id="camSub">${t('sh.camSub')}</div>
+      <div class="t">${mealTitle}</div>
+      <div class="s" id="camSub"></div>
       <div class="x" data-act="closeSheet">✕</div>
     </div>
     <div class="sh-b" id="camBody">
       <div class="cam">
         <label class="opt" style="margin:0">
-          <div class="i">📷</div><div class="t">${t('sh.photo')}</div>
+          <div class="i"><svg viewBox="0 0 24 24"><path d="M4 8.5h3L8.6 6h6.8l1.6 2.5h3v10.5H4z"/><circle cx="12" cy="13.4" r="3.2"/></svg></div>
+          <div class="t">${t('sh.photo')}</div>
           <input type="file" accept="image/*" capture="environment" id="fileCamera" hidden>
         </label>
         <label class="opt" style="margin:0">
-          <div class="i">🖼</div><div class="t">${t('sh.album')}</div>
+          <div class="i"><svg viewBox="0 0 24 24"><rect x="3.5" y="5" width="17" height="14" rx="2.5"/><circle cx="8.8" cy="10" r="1.5"/><path d="m4.8 17.6 4.8-4.8 3.1 3.1 2.6-2.6 4.3 4.3"/></svg></div>
+          <div class="t">${t('sh.album')}</div>
           <input type="file" accept="image/*" id="fileAlbum" hidden>
         </label>
-      </div>
-      <div class="tips">
-        ${t('sh.whyPhoto')}<br>${t('sh.accuracy')}
       </div>
     </div>
     <div class="sh-f">
@@ -1739,13 +1516,12 @@ function sheetMembers(s) {
     return `<div class="mrow ${on ? 'on' : ''}" data-act="pickMember" data-id="${mm.id}">
       <div class="av" style="background:${mm.color}">${mm.emoji}</div>
       <div class="info"><div class="n">${esc(memberName(mm))}</div>
-      <div class="s">${t('me.memberTarget', { t: mm.target })}</div></div>
+      <div class="s">${t('me.memberTarget', { t: fmtNum(mm.target) })}</div></div>
       <div class="chk">${on ? '✓' : ''}</div>
     </div>`;
   }).join('');
   return `<div class="sheet" style="max-height:70%">
     <div class="sh-h"><div class="grab"></div><div class="t">${t('sh.switchMember')}</div>
-      <div class="s">${t('sh.memberSub')}</div>
       <div class="x" data-act="closeSheet">✕</div></div>
     <div class="sh-b" style="padding:0">
       <div class="card" style="margin:0;border:none;border-radius:0">${rows}</div>
@@ -1777,7 +1553,6 @@ function sheetWeight() {
     <div class="sh-h">
       <div class="grab"></div>
       <div class="t">${t('wt.title')}</div>
-      <div class="s">${t('wt.tip')}</div>
       <div class="x" data-act="closeSheet">✕</div>
     </div>
     <div class="sh-b">
@@ -1796,8 +1571,7 @@ function sheetWeight() {
       </div>
 
       <div style="font-size:10px;color:var(--muted2);letter-spacing:.06em;margin:18px 0 8px">${t('wt.history')}</div>
-      ${rows || `<div class="wempty" style="padding:16px 8px">${t('wt.empty')}<br>
-        <span style="font-size:11px">${t('wt.emptyHint')}</span></div>`}
+      ${rows || `<div class="wempty">${t('wt.empty')}</div>`}
     </div>
     <div class="sh-f">
       <button class="btn gho" data-act="closeSheet">${t('c.close')}</button>
@@ -1943,9 +1717,7 @@ function showResult(mealId, dataUrl, items, mask) {
     const sum = items.reduce((a, it) => a + Math.round(it.baseKcal * it.portion), 0);
     body.innerHTML = `
       <img class="preview" src="${dataUrl}" alt="照片">
-      <div style="font-size:11px;color:var(--muted2);margin:13px 0 9px;letter-spacing:.04em">
-        ${t('rec.found', { n: items.length })}
-      </div>
+      <div class="ritems">
       ${items.map((it, idx) => `
         <div class="ritem">
           <div class="top">
@@ -1959,6 +1731,7 @@ function showResult(mealId, dataUrl, items, mask) {
               data-p="${p.v}" data-idx="${idx}">${t(p.lk)}</div>`).join('')}
           </div>
         </div>`).join('')}
+      </div>
       <div class="sum"><span>${t('rec.total')}</span><span>${t('c.approx')} <b>${sum}</b> kcal</span></div>`;
 
     body.querySelectorAll('[data-p]').forEach(c => c.addEventListener('click', () => {
@@ -2013,23 +1786,20 @@ function openManualEntry(mealId, mask, imageUrl) {
       : FOOD_POOL;
     if (!list.length) return `<div style="font-size:12px;color:var(--muted2);padding:14px 2px">${t('man.notFound')}</div>`;
     return list.map(f => `
-      <div class="mrow" style="background:var(--surface2);border-radius:11px;border:none;margin-bottom:6px" data-pick="${f.n}">
-        <div class="av" style="background:var(--surface3);width:30px;height:30px;flex:0 0 30px;font-size:14px">${f.e}</div>
+      <div class="mrow" data-pick="${f.n}">
+        <div class="av" style="background:var(--surface3);width:28px;height:28px;flex:0 0 28px;font-size:13px">${f.e}</div>
         <div class="info"><div class="n">${foodName(f)}</div><div class="s">${t('c.approx')} ${f.k} kcal · ${foodUnit(f)}</div></div>
-        <div style="font-size:12px;color:var(--accent);font-weight:600">${t('c.choose')}</div>
+        <div style="color:var(--muted2);font-size:13px">›</div>
       </div>`).join('');
   };
 
   body.innerHTML = `
-    ${imageUrl ? `<img src="${imageUrl}" style="width:100%;height:88px;object-fit:cover;border-radius:12px;opacity:.75;margin-bottom:12px" alt="">` : ''}
-    <div style="font-size:12px;color:var(--muted);line-height:1.7;margin-bottom:11px">
-      ${t('man.pickHint')}
-    </div>
+    ${imageUrl ? `<img src="${imageUrl}" style="width:100%;height:84px;object-fit:cover;border-radius:10px;opacity:.7;margin-bottom:14px" alt="">` : ''}
     <input class="fld" id="mSearch" placeholder="${t('man.search')}">
-    <div id="pickList" style="display:grid;gap:0;max-height:230px;overflow:auto;margin-top:10px"></div>
-    <div style="display:flex;align-items:center;gap:8px;margin:14px 2px 8px">
+    <div id="pickList" class="picklist"></div>
+    <div style="display:flex;align-items:center;gap:8px;margin:16px 2px 10px">
       <div style="flex:1;height:1px;background:var(--line)"></div>
-      <span style="font-size:10px;color:var(--muted2);letter-spacing:.06em">${t('man.orSelf')}</span>
+      <span style="font-size:10px;color:var(--muted2)">${t('man.orSelf')}</span>
       <div style="flex:1;height:1px;background:var(--line)"></div>
     </div>
     <div style="display:grid;gap:8px">
