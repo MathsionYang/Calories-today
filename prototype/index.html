@@ -106,8 +106,10 @@ body{
 .calhead{display:flex;align-items:center;justify-content:space-between;padding:8px 0 22px;}
 .calhead .m{font-size:17px;font-weight:650;letter-spacing:-.02em;}
 .calhead .m span{font-size:11.5px;color:var(--muted2);font-weight:500;margin-left:7px;}
-.navb{width:28px;height:28px;display:grid;place-items:center;cursor:pointer;color:var(--muted);font-size:15px;}
+.navb{width:28px;height:28px;display:grid;place-items:center;cursor:pointer;color:rgba(255,255,255,.62);font-size:16px;}
 .navb:active{color:var(--text);}
+/* 已经在当月，「下个月」不存在：淡掉而不是隐藏，位置不跳 */
+.navb.off{opacity:.26;pointer-events:none;}
 .wk{display:grid;grid-template-columns:repeat(7,1fr);margin-bottom:4px;}
 .wk div{text-align:center;font-size:10px;color:var(--muted2);font-weight:500;}
 .grid{display:grid;grid-template-columns:repeat(7,1fr);gap:3px;}
@@ -127,6 +129,9 @@ body{
    浏览器会把 click 派发给共同祖先（.grid），表现为点边缘没反应 */
 .cell.today{box-shadow:inset 0 0 0 1px rgba(255,122,69,.65);background:transparent;}
 .cell.today .dn{color:var(--accent);}
+/* 今天之后没有发生的事：点不开，也不该看起来能点开 */
+.cell.future{pointer-events:none;}
+.cell.future .dn{color:rgba(255,255,255,.22);}
 .cell:active{background:var(--surface2);}
 /* 月统计：一行数字，不是三张卡 */
 .mstats{display:flex;gap:18px;font-size:11.5px;color:var(--muted2);padding:16px 2px 0;}
@@ -298,6 +303,22 @@ input[type="date"].fld{color-scheme:dark;padding-right:6px;}
   color:var(--text);font-size:12px;padding:9px 16px;border-radius:99px;z-index:40;opacity:0;pointer-events:none;
   transition:.22s;border:1px solid var(--line2);white-space:nowrap;}
 .toast.on{opacity:1;transform:translate(-50%,0);}
+/* 二次确认：删除不可撤销，用一张居中卡片问一句，而不是原生 confirm
+   —— 原生弹窗会整块跳出这套视觉语言，还挡不住误触 */
+.cfm{position:absolute;inset:0;z-index:30;display:grid;place-items:center;padding:0 30px;
+  background:rgba(0,0,0,.55);opacity:0;pointer-events:none;transition:opacity .14s;}
+.cfm[hidden]{display:none;}
+.cfm.on{opacity:1;pointer-events:auto;}
+.cfm-box{width:100%;background:var(--surface);border:1px solid var(--line2);border-radius:16px;
+  padding:20px 18px 14px;transform:scale(.97);transition:transform .16s cubic-bezier(.2,.8,.3,1);}
+.cfm.on .cfm-box{transform:none;}
+.cfm-t{font-size:14.5px;font-weight:600;letter-spacing:-.01em;line-height:1.35;}
+.cfm-s{font-size:12px;color:var(--muted);margin-top:7px;line-height:1.45;word-break:break-word;}
+.cfm-s:empty{display:none;}
+.cfm-f{display:flex;gap:8px;margin-top:18px;}
+.cfm-f .btn{padding:10px;font-size:13px;border-radius:10px;}
+.btn.dang{background:rgba(248,113,113,.14);color:#FF8A8A;}
+.btn.dang:active{background:rgba(248,113,113,.26);}
 </style>
 </head>
 <body>
@@ -314,6 +335,16 @@ input[type="date"].fld{color-scheme:dark;padding-right:6px;}
     <div class="app" id="app"></div>
     <nav class="tabbar" id="tabbar"></nav>
     <div class="toast" id="toast"></div>
+    <div class="cfm" id="cfm" hidden>
+      <div class="cfm-box">
+        <div class="cfm-t"></div>
+        <div class="cfm-s"></div>
+        <div class="cfm-f">
+          <button class="btn gho" data-act="cfmNo"></button>
+          <button class="btn dang" data-act="cfmYes"></button>
+        </div>
+      </div>
+    </div>
   </div>
 </div>
 
@@ -380,7 +411,8 @@ const I18N = {
     'page.title': '热量日历',
     'nav.today': '今日', 'nav.calendar': '日历', 'nav.me': '我的',
     'c.approx': '约', 'c.target': '目标', 'c.today': '今天',
-    'c.save': '保存', 'c.cancel': '取消', 'c.close': '关闭', 'c.choose': '选',
+    'c.save': '保存', 'c.cancel': '取消', 'c.close': '关闭',
+    'c.delete': '删除',
     /* 今日 */
     'today.left': 'kcal 剩余', 'today.over': 'kcal 超出', 'today.intake': '已摄入',
     /* 份量 */
@@ -393,7 +425,7 @@ const I18N = {
     'wt.title': '体重', 'wt.unit': 'kg', 'wt.log': '记录', 'wt.today': '今天',
     'wt.empty': '还没有记录', 'wt.history': '历史',
     'wt.save': '保存', 'wt.ph': '如 68.5',
-    'wt.saved': '已记录 {n} kg', 'wt.deleted': '已删除',
+    'wt.saved': '已记录 {n} kg',
     'wt.needVal': '填一个体重', 'wt.badVal': '这个数字不像体重（30–200 kg）',
     /* 我的 */
     'me.title': '我的', 'me.family': '成员',
@@ -430,15 +462,21 @@ const I18N = {
     'toast.storageFull': '本地存储已满', 'toast.addedMember': '已添加 {n}',
     'toast.targetUpdated': '目标已更新', 'toast.providerFilled': '{n} 已填入',
     'toast.customMode': '自定义接口', 'toast.logged': '已记录，今日约 {n} kcal',
+    'toast.deleted': '已删除',
     'prompt.newMember': '新成员叫什么？',
-    'confirm.reset': '清空所有记录并重新生成演示数据？'
+    /* 二次确认 */
+    'cfm.delItem': '删除这条记录？',
+    'cfm.delWeight': '删除这条体重记录？',
+    'cfm.reset': '清空所有记录？',
+    'cfm.resetSub': '会重新生成一套演示数据，现有记录无法恢复'
   },
   en: {
     /* 通用 */
     'page.title': 'Calorie Calendar',
     'nav.today': 'Today', 'nav.calendar': 'Calendar', 'nav.me': 'Me',
     'c.approx': '~', 'c.target': 'Goal', 'c.today': 'Today',
-    'c.save': 'Save', 'c.cancel': 'Cancel', 'c.close': 'Close', 'c.choose': 'Pick',
+    'c.save': 'Save', 'c.cancel': 'Cancel', 'c.close': 'Close',
+    'c.delete': 'Delete',
     /* 今日 */
     'today.left': 'kcal left', 'today.over': 'kcal over', 'today.intake': 'Eaten',
     /* 份量 */
@@ -451,7 +489,7 @@ const I18N = {
     'wt.title': 'Weight', 'wt.unit': 'kg', 'wt.log': 'Log', 'wt.today': 'Today',
     'wt.empty': 'Nothing yet', 'wt.history': 'History',
     'wt.save': 'Save', 'wt.ph': 'e.g. 68.5',
-    'wt.saved': 'Logged {n} kg', 'wt.deleted': 'Deleted',
+    'wt.saved': 'Logged {n} kg',
     'wt.needVal': 'Enter a weight', 'wt.badVal': 'That is not a weight (30–200 kg)',
     /* 我的 */
     'me.title': 'Me', 'me.family': 'People',
@@ -487,7 +525,12 @@ const I18N = {
     'toast.targetUpdated': 'Goal updated', 'toast.providerFilled': '{n} prefilled',
     'toast.customMode': 'Custom endpoint', 'toast.logged': 'Logged · about {n} kcal today',
     'prompt.newMember': 'Name of the new person?',
-    'confirm.reset': 'Clear all records and regenerate demo data?'
+    'toast.deleted': 'Deleted',
+    /* confirm */
+    'cfm.delItem': 'Delete this entry?',
+    'cfm.delWeight': 'Delete this weigh-in?',
+    'cfm.reset': 'Clear all records?',
+    'cfm.resetSub': 'Demo data will be regenerated. Current records cannot be recovered.'
   }
 };
 
@@ -997,7 +1040,9 @@ function viewCalendar(m) {
   const first = new Date(y, mo, 1);
   const startPad = first.getDay();
   const days = new Date(y, mo + 1, 0).getDate();
-  const todayKey = dk(new Date());
+  const nowD = new Date();
+  const todayKey = dk(nowD);
+  const atNow = y === nowD.getFullYear() && mo === nowD.getMonth();
 
   let cells = '';
   for (let i = 0; i < startPad; i++) cells += `<div class="cell blank"></div>`;
@@ -1008,8 +1053,11 @@ function viewCalendar(m) {
     const st = dayStatus(t, m.target);
     if (t) { recDays++; sum += t; }
     if (st === 'near') okDays++;
-    const cls = ['cell', t ? 'has' : '', st !== 'none' ? st : '', key === todayKey ? 'today' : ''].filter(Boolean).join(' ');
-    cells += `<div class="${cls}" data-act="openDay" data-key="${key}">
+    // 未来的格子不给点：还没发生的事没法记录，能点开只会让人以为记错了
+    const future = key > todayKey;
+    const cls = ['cell', t ? 'has' : '', st !== 'none' ? st : '',
+      key === todayKey ? 'today' : '', future ? 'future' : ''].filter(Boolean).join(' ');
+    cells += `<div class="${cls}"${future ? '' : ` data-act="openDay" data-key="${key}"`}>
       <div class="dn">${d}</div>
       <div class="k">${t ? (t > 999 ? (t / 1000).toFixed(1) + 'k' : t) : ''}</div>
     </div>`;
@@ -1059,7 +1107,7 @@ function viewCalendar(m) {
       <div class="m">${fmtMonth(y, mo)}<span>· ${esc(memberName(m))}</span></div>
       <div style="display:flex;gap:2px">
         <div class="navb" data-act="calPrev">‹</div>
-        <div class="navb" data-act="calNext">›</div>
+        <div class="navb ${atNow ? 'off' : ''}" data-act="calNext">›</div>
       </div>
     </div>
     <div class="wk">${weekNames().map(w => `<div>${w}</div>`).join('')}</div>
@@ -1223,8 +1271,13 @@ root.addEventListener('click', e => {
     case 'openWeight': view.sheet = { type: 'weight' }; renderSheet(); break;
     case 'calPrev':
       view.calMonth--; if (view.calMonth < 0) { view.calMonth = 11; view.calYear--; } render(); break;
-    case 'calNext':
-      view.calMonth++; if (view.calMonth > 11) { view.calMonth = 0; view.calYear++; } render(); break;
+    // 已经在当月就没有「下个月」可看：未来还没发生，日历只往回走
+    case 'calNext': {
+      const n = new Date();
+      if (view.calYear === n.getFullYear() && view.calMonth === n.getMonth()) break;
+      view.calMonth++; if (view.calMonth > 11) { view.calMonth = 0; view.calYear++; }
+      render(); break;
+    }
     // 点日历格子 → 弹出当天详情，而不是粗暴地跳走整页
     // （之前跳 tab 时，若点的是"今天"，页面看起来毫无变化，用户会以为点不动）
     case 'openDay': view.sheet = { type: 'dayDetail', key }; renderSheet(); break;
@@ -1243,13 +1296,18 @@ root.addEventListener('click', e => {
     case 'resetData': resetData(); break;
     case 'delItem': {
       const arr = dayMeals(state.currentMemberId, view.dateKey)[meal];
-      if (arr) {
-        const i = arr.findIndex(x => x.id === id);
-        if (i >= 0) arr.splice(i, 1);
-        save(); render();
-      }
+      const i = arr ? arr.findIndex(x => x.id === id) : -1;
+      if (i < 0) break;
+      const it = arr[i];
+      ask(t('cfm.delItem'), `${itemName(it)} · ${itemKcal(it)} kcal`).then(ok => {
+        if (!ok) return;
+        arr.splice(i, 1);
+        save(); render(); toast(t('toast.deleted'));
+      });
       break;
     }
+    case 'cfmYes': answerCfm(true); break;
+    case 'cfmNo': answerCfm(false); break;
     case 'closeSheet': closeSheet(); break;
   }
 });
@@ -1372,9 +1430,11 @@ function exportData() {
 }
 
 function resetData() {
-  if (!confirm(t('confirm.reset'))) return;
-  state = DEFAULT_STATE(); seedDemo(state);
-  state.currentMemberId = 'm1'; save(); render(); toast(t('toast.reset'));
+  ask(t('cfm.reset'), t('cfm.resetSub'), t('me.reset')).then(ok => {
+    if (!ok) return;
+    state = DEFAULT_STATE(); seedDemo(state);
+    state.currentMemberId = 'm1'; save(); render(); toast(t('toast.reset'));
+  });
 }
 
 /* ---------- Sheet ---------- */
@@ -1602,11 +1662,15 @@ function saveWeight() {
 
 function delWeight(key) {
   const mid = state.currentMemberId;
-  if (state.weights[mid]) delete state.weights[mid][key];
-  save();
-  dirtyMain = true;
-  renderSheet();         // 保持弹层打开，方便连着删掉误记的几条
-  toast(t('wt.deleted'));
+  const val = (state.weights[mid] || {})[key];
+  ask(t('cfm.delWeight'), `${fmtMD(key)} · ${(+val).toFixed(1)} ${t('wt.unit')}`).then(ok => {
+    if (!ok) return;
+    if (state.weights[mid]) delete state.weights[mid][key];
+    save();
+    dirtyMain = true;
+    renderSheet();       // 保持弹层打开，方便连着删掉误记的几条
+    toast(t('toast.deleted'));
+  });
 }
 
 function bindSheetEvents(mask, s) {
@@ -1932,6 +1996,42 @@ function toast(msg) {
   clearTimeout(toastTimer);
   toastTimer = setTimeout(() => t.classList.remove('on'), 1900);
 }
+
+/* ---------- 二次确认 ----------
+   删除不可撤销，统一先问一句。用页面内的卡片而不是原生 confirm：
+   原生弹窗会整块跳出这套视觉语言，也不在手机框里居中。
+   调用方拿到 Promise<boolean>，删除逻辑写在 .then 里，不需要额外的状态机。 */
+let cfmResolve = null;
+function ask(title, sub, okText) {
+  // 连点两次删除时，先把上一个问句按「取消」结掉，否则那个 Promise 永远悬着
+  if (cfmResolve) answerCfm(false);
+  const box = document.getElementById('cfm');
+  box.querySelector('.cfm-t').textContent = title;
+  box.querySelector('.cfm-s').textContent = sub || '';
+  box.querySelector('[data-act="cfmYes"]').textContent = okText || t('c.delete');
+  box.querySelector('[data-act="cfmNo"]').textContent = t('c.cancel');
+  box.hidden = false;
+  void box.offsetWidth;                 // 强制一次 layout，否则 .on 的过渡不会触发
+  box.classList.add('on');
+  return new Promise(res => { cfmResolve = res; });
+}
+function answerCfm(ok) {
+  const box = document.getElementById('cfm');
+  if (box.hidden) return;
+  box.classList.remove('on');
+  setTimeout(() => { box.hidden = true; }, 140);   // 等淡出，避免闪一下就消失
+  const r = cfmResolve; cfmResolve = null;
+  if (r) r(ok);
+}
+// 点遮罩 = 取消；Esc / Enter 也能答，键盘用户不用去够按钮
+document.getElementById('cfm').addEventListener('click', e => {
+  if (e.target.id === 'cfm') answerCfm(false);
+});
+document.addEventListener('keydown', e => {
+  if (document.getElementById('cfm').hidden) return;
+  if (e.key === 'Escape') { e.preventDefault(); answerCfm(false); }
+  else if (e.key === 'Enter') { e.preventDefault(); answerCfm(true); }
+});
 
 /* ---------- 启动 ---------- */
 render();
