@@ -18,9 +18,8 @@
 
 | 路径 | 说明 |
 |---|---|
-| `prototype/index.html` | 全部原型代码（HTML/CSS/JS 单文件，约 1900 行） |
+| `prototype/index.html` | 全部原型代码（HTML/CSS/JS 单文件，约 1,900 行） |
 | `热量日历-产品与技术规划.md` | 产品与技术方案：识别两层、i18n、图表刻度、体重曲线 |
-| `打卡记录提醒软件-需求分析与技术方案.md` | 同目录的另一个产品（儿童打卡）方案，与本仓库主题无关，仅随目录留档 |
 
 ## 原型里已经跑通的
 
@@ -36,20 +35,21 @@
 | tag | 内容 |
 |---|---|
 | `v0.5.1` | 首个入库版本：「我的」页瘦身（语言切换移到页头药丸、目标滑杆并入成员卡、API 与数据改折叠面板），此前已有识别两层、日历、7 日柱状图含 Y 轴刻度、体重曲线、中英双语 |
+| `v0.5.2` | 视觉收口：砍掉环形图、标语、提示文字与次要标签，改为大数字 + 细线；日历只给超标上色；刻度标签居中、细滚动条、日期图标降亮 |
 
 以后每次改动稳定下来就打一个 tag，方便回退：
 
 ```bash
-git tag -a v0.5.2 -m "这次改了什么"
-git push origin --tags
+git tag -a v0.5.3 -m "这次改了什么"
+git push origin main --follow-tags
 ```
 
 恢复到某个版本：
 
 ```bash
-git checkout v0.5.1
+git checkout v0.5.2
 # 或只看某个版本的原型，不动工作区
-git show v0.5.1:prototype/index.html > index-v0.5.1.html
+git show v0.5.2:prototype/index.html > index-v0.5.2.html
 ```
 
 ## 说明
