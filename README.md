@@ -9,6 +9,14 @@ Calories Today is a lightweight food journal for everyday use. Take a photo to i
 
 [访问产品主页 · Visit the product page](https://mathsionyang.github.io/Calories-today/)
 
+## 品牌宣传片 · Brand Film
+
+<video src="https://github.com/MathsionYang/Calories-today/raw/refs/heads/main/t.mp4" controls width="100%">
+  <a href="t.mp4">观看宣传片 · Watch the brand film</a>
+</video>
+
+[下载宣传片 · Download the video](t.mp4)
+
 ## 应用界面 · App Preview
 
 <table>
