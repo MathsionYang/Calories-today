@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#08090a">
+<title>热量日历 · Calories Today</title>
+<meta name="description" content="拍照记录每一餐，用日历回看饮食与热量。">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='24' fill='%230B0C0E'/><circle cx='50' cy='50' r='41.75' fill='none' stroke='%23FFC8B1' stroke-width='8.5'/><rect x='19' y='42.5' width='62' height='9' rx='4.5' fill='%23FFB088'/><path d='M27 55H73A23 20 0 0 1 27 55Z' fill='%23FF7A45'/></svg>">
+<style>
+  :root {
+    color-scheme: dark;
+    --bg: #08090a;
+    --surface: #111214;
+    --line: rgba(255, 255, 255, .09);
+    --text: #edeef0;
+    --muted: #8b8d93;
+    --accent: #ff7a45;
+    --max-width: 1120px;
+    --page-gutter: 32px;
+  }
+
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    margin: 0;
+    overflow-x: hidden;
+    background: var(--bg);
+    color: var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", system-ui, sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
+  body::before {
+    position: fixed;
+    z-index: -1;
+    inset: 0;
+    background: radial-gradient(700px 500px at 78% 0%, rgba(255, 122, 69, .1), transparent 70%);
+    content: "";
+    pointer-events: none;
+  }
+  a { color: inherit; text-decoration: none; }
+  img { display: block; max-width: 100%; }
+  h1, h2, p, figure { margin: 0; }
+  .wrap {
+    width: min(100% - var(--page-gutter) * 2, var(--max-width));
+    margin-inline: auto;
+  }
+
+  .nav {
+    position: sticky;
+    z-index: 10;
+    top: 0;
+    border-bottom: 1px solid transparent;
+    background: rgba(8, 9, 10, .78);
+    backdrop-filter: blur(18px);
+    transition: border-color .2s ease;
+  }
+  .nav.stuck { border-bottom-color: var(--line); }
+  .nav-in {
+    display: flex;
+    height: 72px;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .brand {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 15px;
+    font-weight: 650;
+    letter-spacing: -.02em;
+  }
+  .brand svg { flex: 0 0 auto; }
+  .nav-right { display: flex; align-items: center; }
+  .lang {
+    display: flex;
+    gap: 3px;
+    padding: 4px;
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    background: var(--surface);
+  }
+  .lang button {
+    min-width: 36px;
+    min-height: 32px;
+    padding: 0 9px;
+    border: 0;
+    border-radius: 999px;
+    background: transparent;
+    color: var(--muted);
+    font: inherit;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+  }
+  .lang button.on { background: #242629; color: var(--text); }
+  .lang button:focus-visible, a:focus-visible, .gallery:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 4px;
+  }
+
+  .hero { padding: 74px 0 32px; }
+  .hero-in {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(260px, 350px);
+    align-items: center;
+    gap: clamp(48px, 9vw, 120px);
+  }
+  h1 {
+    max-width: 10em;
+    font-size: clamp(42px, 6vw, 72px);
+    font-weight: 680;
+    letter-spacing: -.065em;
+    line-height: 1.12;
+    text-wrap: balance;
+  }
+  .hero-copy p {
+    max-width: 28em;
+    margin-top: 22px;
+    color: var(--muted);
+    font-size: clamp(16px, 1.6vw, 19px);
+    line-height: 1.7;
+    text-wrap: pretty;
+  }
+  .hero-phone { position: relative; display: flex; justify-content: center; }
+  .hero-phone::before {
+    position: absolute;
+    z-index: -1;
+    inset: -32px;
+    border-radius: 50%;
+    background: rgba(255, 122, 69, .12);
+    content: "";
+    filter: blur(54px);
+  }
+  .device {
+    overflow: hidden;
+    width: 100%;
+    padding: 8px;
+    border: 1px solid rgba(255, 255, 255, .1);
+    border-radius: 34px;
+    background: linear-gradient(160deg, #1b1c1f, #0e0f11 62%);
+    box-shadow: 0 38px 90px -46px rgba(0, 0, 0, .95);
+  }
+  .device img { width: 100%; height: auto; border-radius: 26px; }
+
+  .screens { padding: 72px 0 0; }
+  .screens h2 {
+    max-width: 16em;
+    font-size: clamp(26px, 3vw, 36px);
+    font-weight: 620;
+    letter-spacing: -.045em;
+    line-height: 1.25;
+    text-wrap: balance;
+  }
+  .gallery {
+    overflow-x: auto;
+    margin-top: 32px;
+    padding: 2px 2px 12px;
+    scrollbar-color: rgba(255, 176, 136, .55) transparent;
+    scrollbar-width: thin;
+    cursor: grab;
+    overscroll-behavior-x: contain;
+    scroll-snap-type: x mandatory;
+  }
+  .gallery.drag { cursor: grabbing; user-select: none; }
+  .gallery-track { display: flex; align-items: flex-start; gap: 20px; }
+  .shot {
+    flex: 0 0 calc((100% - 40px) / 3);
+    min-width: 0;
+    scroll-snap-align: start;
+  }
+  .shot .device { transition: border-color .2s, transform .2s; }
+  .shot:hover .device { transform: translateY(-3px); border-color: rgba(255, 255, 255, .2); }
+  figcaption {
+    padding: 13px 4px 0;
+    color: var(--muted);
+    font-size: 14px;
+    font-weight: 540;
+  }
+  .rail {
+    position: relative;
+    width: 132px;
+    height: 2px;
+    margin-top: 20px;
+    border-radius: 2px;
+    background: var(--line);
+  }
+  .rail i {
+    position: absolute;
+    inset: 0 auto 0 0;
+    border-radius: inherit;
+    background: var(--accent);
+    transition: transform .08s linear;
+  }
+  footer {
+    margin-top: 72px;
+    padding: 22px 0 34px;
+    border-top: 1px solid var(--line);
+    color: var(--muted);
+    font-size: 12px;
+  }
+  .foot { display: flex; align-items: center; justify-content: space-between; gap: 20px; }
+  .foot .brand { color: var(--text); font-size: 13px; }
+
+  @media (max-width: 760px) {
+    :root { --page-gutter: 22px; }
+    .nav-in { height: 64px; }
+    .hero { padding-top: 44px; }
+    .hero-in { grid-template-columns: 1fr; gap: 34px; }
+    h1 { max-width: 11em; font-size: clamp(40px, 10vw, 58px); }
+    .hero-copy p { margin-top: 16px; }
+    .hero-phone .device { width: min(68vw, 290px); }
+    .screens { padding-top: 48px; }
+    .gallery-track { gap: 14px; }
+    .shot { flex-basis: calc((100% - 14px) / 2); }
+    .foot { align-items: flex-start; flex-direction: column; gap: 12px; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    html { scroll-behavior: auto; }
+    *, *::before, *::after { transition-duration: .01ms !important; }
+  }
+</style>
+</head>
+<body>
+<header class="nav" id="nav">
+  <div class="wrap nav-in">
+    <a class="brand" href="#top" aria-label="热量日历">
+      <svg width="30" height="30" viewBox="0 0 100 100" aria-hidden="true">
+        <circle cx="50" cy="50" r="37.5" fill="#08090A"/>
+        <circle cx="50" cy="50" r="41.75" fill="none" stroke="#FFC8B1" stroke-width="8.5"/>
+        <rect x="19" y="42.5" width="62" height="9" rx="4.5" fill="#FFB088"/>
+        <path d="M27 55H73A23 20 0 0 1 27 55Z" fill="#FF7A45"/>
+      </svg>
+      <span data-zh="热量日历" data-en="Calories Today">热量日历</span>
+    </a>
+    <div class="nav-right">
+      <div class="lang" role="group" aria-label="语言 / Language">
+        <button type="button" data-lang="zh" class="on" aria-pressed="true">中</button>
+        <button type="button" data-lang="en" aria-pressed="false">EN</button>
+      </div>
+    </div>
+  </div>
+</header>
+
+<main id="top">
+  <section class="hero">
+    <div class="wrap hero-in">
+      <div class="hero-copy">
+        <h1 data-zh="记下一餐，看见一整天。" data-en="Every meal, in the bigger picture.">记下一餐，看见一整天。</h1>
+        <p data-zh="拍照记录食物，用日历回看每天的饮食与热量。" data-en="Log meals with a photo, then look back on your food and calories in the calendar.">拍照记录食物，用日历回看每天的饮食与热量。</p>
+      </div>
+      <div class="hero-phone">
+        <div class="device">
+          <img src="Photo/mock-01-today.png" width="1080" height="2400" alt="今日饮食记录" data-zh-alt="今日饮食记录" data-en-alt="Today's food log">
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="screens" aria-labelledby="screens-title">
+    <div class="wrap">
+      <h2 id="screens-title" data-zh="每一餐，都有迹可循。" data-en="Your food, day by day.">每一餐，都有迹可循。</h2>
+      <div class="gallery" tabindex="0" role="region" aria-label="应用界面，可横向浏览">
+        <div class="gallery-track">
+          <figure class="shot">
+            <div class="device"><img src="Photo/mock-01-today.png" width="1080" height="2400" alt="今日页面" data-zh-alt="今日页面" data-en-alt="Today screen" draggable="false"></div>
+            <figcaption data-zh="今日饮食" data-en="Today">今日饮食</figcaption>
+          </figure>
+          <figure class="shot">
+            <div class="device"><img src="Photo/mock-02-photo-options.png" width="1080" height="2400" alt="拍照记录" data-zh-alt="拍照记录" data-en-alt="Photo logging" draggable="false"></div>
+            <figcaption data-zh="拍照记录" data-en="Photo logging">拍照记录</figcaption>
+          </figure>
+          <figure class="shot">
+            <div class="device"><img src="Photo/mock-03-calendar.png" width="1080" height="2400" alt="饮食日历与趋势" data-zh-alt="饮食日历与趋势" data-en-alt="Calendar and trends" draggable="false"></div>
+            <figcaption data-zh="日历与趋势" data-en="Calendar and trends">日历与趋势</figcaption>
+          </figure>
+          <figure class="shot">
+            <div class="device"><img src="Photo/mock-04-day-detail.png" width="1080" height="2400" alt="单日饮食详情" data-zh-alt="单日饮食详情" data-en-alt="Daily meal details" draggable="false"></div>
+            <figcaption data-zh="单日详情" data-en="Day details">单日详情</figcaption>
+          </figure>
+          <figure class="shot">
+            <div class="device"><img src="Photo/mock-05-profile.png" width="1080" height="2400" alt="成员与每日目标" data-zh-alt="成员与每日目标" data-en-alt="People and daily goals" draggable="false"></div>
+            <figcaption data-zh="成员与目标" data-en="People and goals">成员与目标</figcaption>
+          </figure>
+        </div>
+      </div>
+      <div class="rail" aria-hidden="true"><i></i></div>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap foot">
+    <a class="brand" href="#top">
+      <svg width="24" height="24" viewBox="0 0 100 100" aria-hidden="true">
+        <circle cx="50" cy="50" r="37.5" fill="#08090A"/>
+        <circle cx="50" cy="50" r="41.75" fill="none" stroke="#FFC8B1" stroke-width="8.5"/>
+        <rect x="19" y="42.5" width="62" height="9" rx="4.5" fill="#FFB088"/>
+        <path d="M27 55H73A23 20 0 0 1 27 55Z" fill="#FF7A45"/>
+      </svg>
+      <span data-zh="热量日历" data-en="Calories Today">热量日历</span>
+    </a>
+    <p data-zh="热量为估算值，仅供日常参考。 · © 2026" data-en="Calories are estimates for everyday reference. · © 2026">热量为估算值，仅供日常参考。 · © 2026</p>
+  </div>
+</footer>
+
+<script>
+(function () {
+  var languageKey = "cal.landing.lang";
+  var languageButtons = document.querySelectorAll("[data-lang]");
+
+  function applyLanguage(language) {
+    document.documentElement.lang = language === "zh" ? "zh-CN" : "en";
+    document.querySelectorAll("[data-zh]").forEach(function (element) {
+      element.textContent = element.getAttribute("data-" + language);
+    });
+    document.querySelectorAll("[data-zh-alt]").forEach(function (element) {
+      element.setAttribute("alt", element.getAttribute("data-" + language + "-alt"));
+    });
+    languageButtons.forEach(function (button) {
+      var selected = button.getAttribute("data-lang") === language;
+      button.classList.toggle("on", selected);
+      button.setAttribute("aria-pressed", String(selected));
+    });
+  }
+
+  var savedLanguage = null;
+  try { savedLanguage = localStorage.getItem(languageKey); } catch (error) {}
+  applyLanguage(savedLanguage || ((navigator.language || "zh").slice(0, 2) === "zh" ? "zh" : "en"));
+
+  languageButtons.forEach(function (button) {
+    button.addEventListener("click", function () {
+      var language = button.getAttribute("data-lang");
+      try { localStorage.setItem(languageKey, language); } catch (error) {}
+      applyLanguage(language);
+    });
+  });
+
+  var nav = document.getElementById("nav");
+  var updateNav = function () { nav.classList.toggle("stuck", window.scrollY > 6); };
+  updateNav();
+  window.addEventListener("scroll", updateNav, { passive: true });
+
+  var gallery = document.querySelector(".gallery");
+  var rail = document.querySelector(".rail");
+  var railThumb = rail.querySelector("i");
+
+  function updateGalleryPosition() {
+    var visibleWidth = gallery.clientWidth;
+    var totalWidth = gallery.scrollWidth;
+    var maxScroll = totalWidth - visibleWidth;
+    if (maxScroll < 2) {
+      rail.hidden = true;
+      return;
+    }
+    rail.hidden = false;
+    var railWidth = rail.clientWidth;
+    var thumbWidth = Math.max(22, railWidth * visibleWidth / totalWidth);
+    railThumb.style.width = thumbWidth + "px";
+    railThumb.style.transform = "translateX(" + (gallery.scrollLeft / maxScroll) * (railWidth - thumbWidth) + "px)";
+  }
+
+  gallery.addEventListener("scroll", updateGalleryPosition, { passive: true });
+  window.addEventListener("resize", updateGalleryPosition);
+  updateGalleryPosition();
+
+  var dragStart = null;
+  gallery.addEventListener("pointerdown", function (event) {
+    if (event.pointerType !== "mouse") return;
+    dragStart = { x: event.clientX, scrollLeft: gallery.scrollLeft };
+    gallery.classList.add("drag");
+  });
+  window.addEventListener("pointermove", function (event) {
+    if (!dragStart) return;
+    gallery.scrollLeft = dragStart.scrollLeft - (event.clientX - dragStart.x);
+  });
+  window.addEventListener("pointerup", function () {
+    if (!dragStart) return;
+    dragStart = null;
+    gallery.classList.remove("drag");
+  });
+})();
+</script>
+</body>
+</html>
