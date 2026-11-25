@@ -144,6 +144,24 @@
   .device img { width: 100%; height: auto; border-radius: 26px; }
 
   .screens { padding: 72px 0 0; }
+  .film {
+    padding-top: 80px;
+  }
+  .film h2 {
+    margin-bottom: 26px;
+    font-size: clamp(26px, 3vw, 36px);
+    font-weight: 620;
+    letter-spacing: -.045em;
+    line-height: 1.25;
+  }
+  .film video {
+    display: block;
+    width: 100%;
+    max-height: min(72vh, 720px);
+    border: 1px solid var(--line);
+    border-radius: 24px;
+    background: #000;
+  }
   .screens h2 {
     max-width: 16em;
     font-size: clamp(26px, 3vw, 36px);
@@ -286,6 +304,16 @@
         </div>
       </div>
       <div class="rail" aria-hidden="true"><i></i></div>
+    </div>
+  </section>
+
+  <section class="film" aria-labelledby="film-title">
+    <div class="wrap">
+      <h2 id="film-title" data-zh="热量日历 · 品牌宣传片" data-en="Calories Today · Brand film">热量日历 · 品牌宣传片</h2>
+      <video controls preload="metadata" playsinline aria-label="热量日历品牌宣传片">
+        <source src="brand-film.mp4" type="video/mp4">
+        您的浏览器暂不支持视频播放。<a href="brand-film.mp4">下载视频 · Download video</a>
+      </video>
     </div>
   </section>
 </main>

@@ -6,6 +6,7 @@ on:
     paths:
       - "landing/**"
       - "Photo/mock-*.png"
+      - "t.mp4"
       - ".github/workflows/pages.yml"
   workflow_dispatch:
 
@@ -36,6 +37,7 @@ jobs:
           python3 landing/build.py
           mkdir -p _site
           cp landing/index.html _site/index.html
+          cp t.mp4 _site/brand-film.mp4
 
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3
